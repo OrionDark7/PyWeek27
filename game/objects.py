@@ -34,6 +34,8 @@ class tile(pygame.sprite.Sprite):
         self.crumble = False
         self.count = 0
     def update(self, pos, action, allclear):
+        if action == "get" and self.rect.collidepoint(allclear.mouse):
+            allclear.type = self.type
         if action == "move":
             self.count += 1
             if self.type == "crumble" and self.crumble and self.crumbletime + 1 == self.count:
