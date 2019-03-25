@@ -9,7 +9,7 @@ def stringToTuple(oldstring):
         oldstring = oldstring[1:len(oldstring) - 1]
     pos = oldstring.split(",")
     pos[0] = int(pos[0])
-    pos[1] = int(pos[1])
+    pos[1] = int(pos[1][0])
     return tuple(pos)
 
 def loadFile(file,meta):

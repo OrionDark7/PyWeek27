@@ -13,9 +13,9 @@ running = True
 player = objects.player([250, 150])
 screen = "menu"
 level = 0
-starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0]]
-sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "level6", "level7"]
-levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5", "level6":"level6", "level7":"level7"}
+starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0]]
+sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8"]
+levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5", "level6":"level6", "level7":"level7", "level8":"level8s"}
 map, floor, traps = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx", "./levels/" + str(levels[sequence[level]]) + ".txt")
 moves = 6
 Move = pygame.mixer.Sound("./sfx/Move.wav")
@@ -211,7 +211,6 @@ def move():
 setMusic("./music/sunshine.wav")
 
 while running:
-    print music
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
