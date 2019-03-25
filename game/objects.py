@@ -4,6 +4,7 @@ pygame.init()
 pygame.mixer.init()
 
 sounds = {"key": pygame.mixer.Sound("./sfx/Key.wav"), "portal": pygame.mixer.Sound("./sfx/Portal.wav"), "trap": pygame.mixer.Sound("./sfx/Trap.wav"), "win": pygame.mixer.Sound("./sfx/You Win.wav")}
+sfx = True
 
 class player(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -53,18 +54,21 @@ class tile(pygame.sprite.Sprite):
                     allclear.allclear = True
                     allclear.moveto = self.data[0]
                     allclear.moveagain = False
-                    sounds["portal"].play()
+                    if sfx:
+                        sounds["portal"].play()
                 elif self.type == "key":
                     allclear.allclear = True
                     allclear.update = "unlockdoor"
                     allclear.door = self.data[0]
                     allclear.moveagain = False
-                    sounds["key"].play()
+                    if sfx:
+                        sounds["key"].play()
                     self.kill()
                 elif self.type == "exit":
                     allclear.moveagain = False
                     allclear.won = True
-                    sounds["win"].play()
+                    if sfx:
+                        sounds["win"].play()
                 elif self.type.startswith("conveyer"):
                     allclear.allclear = True
                     conveyertype = self.type.split("conveyer-")[1]
@@ -85,7 +89,8 @@ class tile(pygame.sprite.Sprite):
                     allclear.trap = True
                     allclear.moveagain = False
                     self.kill()
-                    sounds["trap"].play()
+                    if sfx:
+                        sounds["trap"].play()
                 elif self.type == "crumble":
                     allclear.allclear = True
                     self.crumble = True

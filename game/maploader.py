@@ -45,7 +45,7 @@ def loadFile(file,meta):
             tile = mapdata.get_tile_image(x, y, 2)
             props = mapdata.get_tile_properties(x, y, 2)
             if not tile == None:
-                print tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y]
+                #print tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y]
                 datastr = str((x,y))
                 try:
                     newtile = objects.tile(tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y], data[datastr])

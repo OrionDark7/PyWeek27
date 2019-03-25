@@ -4,8 +4,9 @@ pygame.init()
 pygame.mixer.init()
 
 select = pygame.mixer.Sound("./sfx/Select.wav")
+sfx = True
 
-font = pygame.font.Font(None, 24)
+font = pygame.font.Font("./font/slkscr.ttf", 24)
 
 def text(text, pos, color, surface):
     global font
@@ -20,7 +21,7 @@ def centeredText(text, pos, color, surface):
 
 def setFontSize(size):
     global font
-    font = pygame.font.Font(None, int(size))
+    font = pygame.font.Font("./font/slkscr.ttf", int(size))
 
 class button(pygame.sprite.Sprite):
     def __init__(self, text, pos, color, centered=False):
@@ -33,10 +34,33 @@ class button(pygame.sprite.Sprite):
         else:
             self.rect.left, self.rect.top = list(pos)
     def click(self, mouse):
+        global sfx
         clicked = False
         if self.rect.collidepoint(mouse):
             clicked = True
-            select.play()
+            if sfx:
+                select.play()
+        return clicked
+    def draw(self, surface):
+        surface.blit(self.image, [self.rect.left, self.rect.top])
+
+class imagebutton(pygame.sprite.Sprite):
+    def __init__(self, image, pos, size, centered=False):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(str(image))
+        self.image = pygame.transform.scale(self.image, list(size))
+        self.rect = self.image.get_rect()
+        if centered:
+            self.rect.left, self.rect.top = pos[0] - (self.rect.width/2), pos[1]
+        else:
+            self.rect.left, self.rect.top = list(pos)
+    def click(self, mouse):
+        global sfx
+        clicked = False
+        if self.rect.collidepoint(mouse):
+            clicked = True
+            if sfx:
+                select.play()
         return clicked
     def draw(self, surface):
         surface.blit(self.image, [self.rect.left, self.rect.top])
