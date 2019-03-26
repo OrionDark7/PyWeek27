@@ -13,9 +13,10 @@ running = True
 player = objects.player([250, 150])
 screen = "menu"
 level = 0
-starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0]]
-sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8"]
-levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5", "level6":"level6", "level7":"level7", "level8":"level8s"}
+starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+pygame.time.set_timer(pygame.USEREVENT, 500) #Update Animations every 0.5 seconds
+sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8", "level9"]
+levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5", "level6":"level6", "level7":"level7", "level8":"level8", "level9":"level9"}
 map, floor, traps = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx", "./levels/" + str(levels[sequence[level]]) + ".txt")
 moves = 6
 Move = pygame.mixer.Sound("./sfx/Move.wav")
@@ -24,6 +25,7 @@ mouse = [0, 0]
 fullscreen = False
 music = True
 sfx = True
+sounds = {"key": pygame.mixer.Sound("./sfx/Key.wav"), "portal": pygame.mixer.Sound("./sfx/Portal.wav"), "trap": pygame.mixer.Sound("./sfx/Trap.wav"), "win": pygame.mixer.Sound("./sfx/You Win.wav"), "wall":pygame.mixer.Sound("./sfx/Wall.wav")}
 prev = "menu"
 
 ui.setFontSize(36)
@@ -41,6 +43,7 @@ t1 = ui.imagebutton("./images/levels/tutorial1.png", [28, 100], [100, 100])
 
 def update(action, grp=None): #Updates Specifed Group, if None Specifed, then all are Updated.
     global player, returnparameters, map, floor, traps
+    returnparameters.sound = None
     if grp == None:
         map.update(player.pos, action, returnparameters)
         floor.update(player.pos, action, returnparameters)
@@ -51,6 +54,8 @@ def update(action, grp=None): #Updates Specifed Group, if None Specifed, then al
         floor.update(player.pos, action, returnparameters)
     elif grp == traps:
         traps.update(player.pos, action, returnparameters)
+    if not returnparameters.sound == None and not action == "move":
+        sounds[returnparameters.sound].play()
 
 class ReturnParameters(pygame.sprite.Sprite): #For use when updating sprite groups
     def __init__(self):
@@ -66,6 +71,7 @@ class ReturnParameters(pygame.sprite.Sprite): #For use when updating sprite grou
         self.won = False
         self.wallappear = None
         self.type = None
+        self.sound = None
     def reset(self):
         self.allclear = True
         self.moveto = None
@@ -78,6 +84,7 @@ class ReturnParameters(pygame.sprite.Sprite): #For use when updating sprite grou
         self.won = False
         self.wallappear = None
         self.type = None
+        self.sound = None
 
 returnparameters = ReturnParameters()
 
@@ -142,6 +149,7 @@ def drawScreen():
     if level < 4:
         tutorial()
     if returnparameters.won:
+        ui.setFontSize(48)
         ui.centeredText("You Win!", [400, 55], [255, 255, 255], window)
         pygame.display.flip()
         time.sleep(2)
@@ -176,6 +184,51 @@ def toggleFullscreen():
     elif not fullscreen:
         window = pygame.display.set_mode([800, 600])
 
+def animatePlayer(oldpos, newpos):
+    global window, map, floor, traps, player
+    for i in range(20):
+        window.fill([0, 0, 0])
+        traps.draw(window)
+        floor.draw(window)
+        map.draw(window)
+        ui.setFontSize(48)
+        ui.centeredText("Moves: " + str(moves), [400, 5], [255, 255, 255], window)
+        if level < 4:
+            tutorial()
+        coordinates = [(oldpos[0] * 60) + ((newpos[0]-oldpos[0])*(3*i)) + 250, (oldpos[1] * 60) + ((newpos[1]-oldpos[1])*(3*i)) + 150]
+        window.blit(player.image, coordinates)
+        pygame.display.flip()
+
+def teleportPlayer(oldpos, newpos):
+    global window, map, floor, traps, player
+    for i in range(30):
+        window.fill([0, 0, 0])
+        traps.draw(window)
+        floor.draw(window)
+        map.draw(window)
+        ui.setFontSize(48)
+        ui.centeredText("Moves: " + str(moves), [400, 5], [255, 255, 255], window)
+        if level < 4:
+            tutorial()
+        coordinates = [(oldpos[0]*60)+i+250, (oldpos[1]*60)+i+150]
+        image = pygame.transform.scale(player.image, [60-(2*i), 60-(2*i)])
+        window.blit(image, coordinates)
+        pygame.display.flip()
+    for i in range(30):
+        window.fill([0, 0, 0])
+        traps.draw(window)
+        floor.draw(window)
+        map.draw(window)
+        ui.setFontSize(48)
+        ui.centeredText("Moves: " + str(moves), [400, 5], [255, 255, 255], window)
+        if level < 4:
+            tutorial()
+        coordinates = [newpos[0]*60+(30-i)+250, newpos[1]*60+(30-i)+150]
+        image = pygame.transform.scale(player.image, [(2*i), (2*i)])
+        window.blit(image, coordinates)
+        pygame.display.flip()
+
+
 def move():
     global event, moves, sfx, returnparameters, player, map, Move
     oldpos = player.pos
@@ -187,8 +240,10 @@ def move():
                     update("move")
                     if returnparameters.allclear:
                         player.moveto(returnparameters.where)
+                        animatePlayer(oldpos, player.pos)
                         if not returnparameters.wallappear == None:
-                            map.add(objects.tile(None, [(returnparameters.wallappear[0]*60)+250, (returnparameters.wallappear[1]*60)+150], "wall", list(returnparameters.wallappear), [None, None]))
+                            for i in returnparameters.wallappear:
+                                map.add(objects.tile(None, [(i[0]*60)+250, (i[1]*60)+150], "wall", list(i), [None, None]))
                         if returnparameters.moveagain:
                             drawScreen()
                             time.sleep(0.1)
@@ -207,6 +262,8 @@ def move():
                     else:
                         player.pos = oldpos
                         returnparameters.reset()
+    if not returnparameters.sound == None and sfx:
+        sounds[str(returnparameters.sound)].play()
 
 setMusic("./music/sunshine.wav")
 
@@ -270,7 +327,6 @@ while running:
                         toggleFullscreen()
                     if sfxb.click(mouse):
                         sfx = not sfx
-                        objects.sfx = sfx
                         ui.sfx = sfx
                     if musicb.click(mouse):
                         music = not music
@@ -294,11 +350,15 @@ while running:
                     update("whereis")
                     move()
                     if not returnparameters.moveto == None:
+                        oldpos = player.pos
                         player.moveto(returnparameters.moveto)
+                        teleportPlayer(oldpos, player.pos)
                         returnparameters.reset()
                     if not returnparameters.update == None:
                         update(returnparameters.update)
                         returnparameters.reset()
+        elif event.type == pygame.USEREVENT:
+            player.animate()
 
     if screen == "menu":
         window.fill([0, 0, 0])
@@ -366,10 +426,6 @@ while running:
             ui.text("On", [415, 255], [0, 255, 0], window)
         else:
             ui.text("Off", [415, 255], [255, 0, 0], window)
-    elif screen == "you win":
-        window.fill([0, 0, 0])
-        ui.setFontSize(64)
-        ui.centeredText("You Win!", [400, 5], [255, 255, 255], window)
     elif screen == "game":
         drawScreen()
         if returnparameters.moveagain:

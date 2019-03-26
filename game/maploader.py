@@ -33,8 +33,16 @@ def loadFile(file,meta):
                 data[line[0]] = [pos, "k2d"]  # Key to Door
             if "w" in line:
                 line = line.split("w")
-                pos = stringToTuple(line[1])
-                data[line[0]] = [pos, "wall"] #Imaginary Field triggers Wall
+                if " " in line[1]:
+                    line[1] = line[1].split(" ")
+                    positions = []
+                    for i in line[1]:
+                        pos = stringToTuple(i)
+                        positions.append(pos)
+                    data[line[0]] = [positions, "wall"]  # Imaginary Field triggers Wall
+                else:
+                    pos = stringToTuple(line[1])
+                    data[line[0]] = [[pos], "wall"]  # Imaginary Field triggers Wall
     metadata.close()
     mapdata = load_pygame(str(file))
     map = pygame.sprite.Group()
