@@ -13,10 +13,10 @@ running = True
 player = objects.player([250, 150])
 screen = "menu"
 level = 0
-starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [0, 0], [4, 0], [0, 0], [2, 2], [0, 0]]
+starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [2, 2]]
 pygame.time.set_timer(pygame.USEREVENT, 500) #Update Animations every 0.5 seconds
-sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10", "level11", "level12", "level13"]
-levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5", "level6":"level6", "level7":"level7", "level8":"level8", "level9":"level9", "level10":"level10", "level11":"level11", "level12":"level12", "level13":"level13"}
+sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10", "level11", "level12", "level13", "level14"]
+levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5", "level6":"level6", "level7":"level7", "level8":"level8", "level9":"level9", "level10":"level10", "level11":"level11", "level12":"level12", "level13":"level13", "level14":"level14"}
 map, floor, traps = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx", "./levels/" + str(levels[sequence[level]]) + ".txt")
 moves = 6
 Move = pygame.mixer.Sound("./sfx/Move.wav")
@@ -112,16 +112,17 @@ def tutorial(): #Displays Tutorial Text
     global level
     ui.setFontSize(24)
     if level == 0:
-        ui.centeredText("Click on any open adjacent tile to move to it.", [400, 470], [255, 255, 255], window)
-        ui.centeredText("To check if a tile is open, just hover over it.", [400, 500], [255, 255, 255], window)
-        ui.centeredText("If its bordered in green, then you can move there.", [400, 530], [255, 255, 255], window)
+        ui.centeredText("Click on any open tile adjacent to your player to", [400, 470], [255, 255, 255], window)
+        ui.centeredText("move to it. To check if a tile is open, just hover", [400, 500], [255, 255, 255], window)
+        ui.centeredText("over it. If its bordered in green, then it is open.", [400, 530], [255, 255, 255], window)
+        ui.centeredText("Complete the level by getting to the staircase.", [400, 560], [255, 255, 255], window)
     elif level == 1:
         ui.centeredText("Well Done!", [400, 470], [255, 255, 255], window)
         ui.centeredText("Now on to the main concept of the game, six moves.", [400, 500], [255, 255, 255], window)
         ui.centeredText("Try to complete this level in six moves or less.", [400, 530], [255, 255, 255], window)
     elif level == 2:
         ui.centeredText("Pretty easy, right?", [400, 470], [255, 255, 255], window)
-        ui.centeredText("This one will be a little harder, as theres something", [400, 500], [255, 255, 255], window)
+        ui.centeredText("This one will be a little trickier, as theres something", [400, 500], [255, 255, 255], window)
         ui.centeredText("there you probably don't expect...", [400, 530], [255, 255, 255], window)
     elif level == 3:
         ui.centeredText("Good job!", [400, 470], [255, 255, 255], window)
@@ -135,8 +136,9 @@ def drawCursor():
         coordinates = [math.floor(coordinates[0] / 60), math.floor(coordinates[1] / 60)]
         coordinates = [(coordinates[0] * 60)+250, (coordinates[1] * 60)+150]
         returnparameters.mouse = mouse
-        update("get")
-        if not returnparameters.type == "wall" and not returnparameters.type == "door" and not returnparameters.type == None:
+        returnparameters.type = None
+        update("get", grp=map)
+        if returnparameters.type == None:
             pygame.draw.rect(window, [0, 255, 0], [coordinates[0], coordinates[1], 60, 60], 3)
         else:
             pygame.draw.rect(window, [255, 0, 0], [coordinates[0], coordinates[1], 60, 60], 3)
