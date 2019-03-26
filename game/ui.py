@@ -50,6 +50,7 @@ class imagebutton(pygame.sprite.Sprite):
         self.image = pygame.image.load(str(image))
         self.image = pygame.transform.scale(self.image, list(size))
         self.rect = self.image.get_rect()
+        self.centered = centered
         if centered:
             self.rect.left, self.rect.top = pos[0] - (self.rect.width/2), pos[1]
         else:
@@ -64,3 +65,9 @@ class imagebutton(pygame.sprite.Sprite):
         return clicked
     def draw(self, surface):
         surface.blit(self.image, [self.rect.left, self.rect.top])
+    def changeImage(self, image, size):
+        oldposition = self.rect.left, self.rect.top
+        self.image = pygame.image.load(str(image))
+        self.image = pygame.transform.scale(self.image, list(size))
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = oldposition

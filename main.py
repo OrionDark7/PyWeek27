@@ -13,10 +13,10 @@ running = True
 player = objects.player([250, 150])
 screen = "menu"
 level = 0
-starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [0, 0], [4, 0], [0, 0], [2, 2], [0, 0]]
 pygame.time.set_timer(pygame.USEREVENT, 500) #Update Animations every 0.5 seconds
-sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8", "level9"]
-levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5", "level6":"level6", "level7":"level7", "level8":"level8", "level9":"level9"}
+sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10", "level11", "level12", "level13"]
+levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5", "level6":"level6", "level7":"level7", "level8":"level8", "level9":"level9", "level10":"level10", "level11":"level11", "level12":"level12", "level13":"level13"}
 map, floor, traps = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx", "./levels/" + str(levels[sequence[level]]) + ".txt")
 moves = 6
 Move = pygame.mixer.Sound("./sfx/Move.wav")
@@ -38,6 +38,9 @@ back = ui.button("Back", [5, 5], [255, 255, 255])
 fullscreenb = ui.button("Toggle Fullscreen", [5, 105], [255, 255, 255])
 musicb = ui.button("Toggle Music", [5, 195], [255, 255, 255])
 sfxb = ui.button("Toggle SFX", [5, 285], [255, 255, 255])
+
+audio = ui.imagebutton("./images/buttons/audio.png", [730, 5], [60, 60])
+musict = ui.imagebutton("./images/buttons/music.png", [665, 5], [60, 60])
 
 t1 = ui.imagebutton("./images/levels/tutorial1.png", [28, 100], [100, 100])
 
@@ -72,6 +75,7 @@ class ReturnParameters(pygame.sprite.Sprite): #For use when updating sprite grou
         self.wallappear = None
         self.type = None
         self.sound = None
+        self.wallappearsat = -1, -1
     def reset(self):
         self.allclear = True
         self.moveto = None
@@ -85,6 +89,7 @@ class ReturnParameters(pygame.sprite.Sprite): #For use when updating sprite grou
         self.wallappear = None
         self.type = None
         self.sound = None
+        self.wallappearsat = -1, -1
 
 returnparameters = ReturnParameters()
 
@@ -146,6 +151,8 @@ def drawScreen():
     player.draw(window)
     ui.centeredText("Moves: " + str(moves), [400, 5], [255, 255, 255], window)
     drawCursor()
+    audio.draw(window)
+    musict.draw(window)
     if level < 4:
         tutorial()
     if returnparameters.won:
@@ -177,6 +184,20 @@ def setMusic(file):
         pygame.mixer_music.load(str(file))
         pygame.mixer_music.play(50)
 
+def updateAudioButtons():
+    global sfx, audio
+    if sfx:
+        audio.changeImage("./images/buttons/audio.png", [60, 60])
+    elif not sfx:
+        audio.changeImage("./images/buttons/audio-off.png", [60, 60])
+
+def updateMusicButtons():
+    global music, musict
+    if music:
+        musict.changeImage("./images/buttons/music.png", [60, 60])
+    elif not music:
+        musict.changeImage("./images/buttons/music-off.png", [60, 60])
+
 def toggleFullscreen():
     global fullscreen, window
     if fullscreen:
@@ -191,6 +212,8 @@ def animatePlayer(oldpos, newpos):
         traps.draw(window)
         floor.draw(window)
         map.draw(window)
+        audio.draw(window)
+        musict.draw(window)
         ui.setFontSize(48)
         ui.centeredText("Moves: " + str(moves), [400, 5], [255, 255, 255], window)
         if level < 4:
@@ -208,6 +231,8 @@ def teleportPlayer(oldpos, newpos):
         map.draw(window)
         ui.setFontSize(48)
         ui.centeredText("Moves: " + str(moves), [400, 5], [255, 255, 255], window)
+        audio.draw(window)
+        musict.draw(window)
         if level < 4:
             tutorial()
         coordinates = [(oldpos[0]*60)+i+250, (oldpos[1]*60)+i+150]
@@ -221,6 +246,8 @@ def teleportPlayer(oldpos, newpos):
         map.draw(window)
         ui.setFontSize(48)
         ui.centeredText("Moves: " + str(moves), [400, 5], [255, 255, 255], window)
+        audio.draw(window)
+        musict.draw(window)
         if level < 4:
             tutorial()
         coordinates = [newpos[0]*60+(30-i)+250, newpos[1]*60+(30-i)+150]
@@ -244,6 +271,8 @@ def move():
                         if not returnparameters.wallappear == None:
                             for i in returnparameters.wallappear:
                                 map.add(objects.tile(None, [(i[0]*60)+250, (i[1]*60)+150], "wall", list(i), [None, None]))
+                                returnparameters.wallappearsat = i
+                                update("wallappear", grp=map)
                         if returnparameters.moveagain:
                             drawScreen()
                             time.sleep(0.1)
@@ -328,8 +357,10 @@ while running:
                     if sfxb.click(mouse):
                         sfx = not sfx
                         ui.sfx = sfx
+                        updateAudioButtons()
                     if musicb.click(mouse):
                         music = not music
+                        updateMusicButtons()
                         if not music:
                             pygame.mixer_music.stop()
                 elif screen == "pause":
@@ -346,19 +377,30 @@ while running:
                         screen = "menu"
                         setMusic("./music/sunshine.wav")
                 elif screen == "game":
-                    returnparameters.mouse = mouse
-                    update("whereis")
-                    move()
-                    if not returnparameters.moveto == None:
-                        oldpos = player.pos
-                        player.moveto(returnparameters.moveto)
-                        teleportPlayer(oldpos, player.pos)
-                        returnparameters.reset()
-                    if not returnparameters.update == None:
-                        update(returnparameters.update)
-                        returnparameters.reset()
+                    if mouse[0] > 250 and mouse[0] < 550 and mouse[1] > 150 and mouse[1] < 450:
+                        returnparameters.mouse = mouse
+                        update("whereis")
+                        move()
+                        if not returnparameters.moveto == None:
+                            oldpos = player.pos
+                            player.moveto(returnparameters.moveto)
+                            teleportPlayer(oldpos, player.pos)
+                            returnparameters.reset()
+                        if not returnparameters.update == None:
+                            update(returnparameters.update)
+                            returnparameters.reset()
+                    else:
+                        if audio.click(mouse):
+                            sfx = not sfx
+                            updateAudioButtons()
+                        if musict.click(mouse):
+                            music = not music
+                            updateMusicButtons()
+                            if not music:
+                                pygame.mixer_music.stop()
         elif event.type == pygame.USEREVENT:
             player.animate()
+            update("animate", grp=map)
 
     if screen == "menu":
         window.fill([0, 0, 0])

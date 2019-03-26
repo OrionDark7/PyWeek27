@@ -53,6 +53,8 @@ class tile(pygame.sprite.Sprite):
             self.image = self.images[self.index]
         if action == "get" and self.rect.collidepoint(allclear.mouse):
             allclear.type = self.type
+        if action == "wallappear" and self.pos == allclear.wallappearsat:
+            self.kill()
         if action == "move":
             self.count += 1
             if self.type == "crumble" and self.crumble and self.crumbletime + 1 == self.count:
