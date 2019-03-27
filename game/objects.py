@@ -2,6 +2,14 @@ import pygame
 
 pygame.init()
 
+images = {"key":[pygame.image.load("./images/tiles/key.png"), pygame.image.load("./images/tiles/keys/key2.png"), pygame.image.load("./images/tiles/keys/key3.png"), pygame.image.load("./images/tiles/keys/key4.png"),
+                           pygame.image.load("./images/tiles/keys/key5.png"), pygame.image.load("./images/tiles/keys/key6.png"), pygame.image.load("./images/tiles/keys/key7.png"), pygame.image.load("./images/tiles/keys/key8.png"),
+                           pygame.image.load("./images/tiles/keys/key9.png"), pygame.image.load("./images/tiles/keys/key10.png"), pygame.image.load("./images/tiles/key.png"), pygame.image.load("./images/tiles/key.png"),
+                            pygame.image.load("./images/tiles/key.png"), pygame.image.load("./images/tiles/key.png"), pygame.image.load("./images/tiles/key.png")],
+        "portal":[pygame.image.load("./images/tiles/portal.png"), pygame.image.load("./images/tiles/portal2.png")],
+        "trap":[pygame.image.load("./images/tiles/trap.png"), pygame.image.load("./images/tiles/traps/trap2.png"), pygame.image.load("./images/tiles/traps/trap3.png"), pygame.image.load("./images/tiles/traps/trap4.png"),
+                pygame.image.load("./images/tiles/traps/trap5.png"), pygame.image.load("./images/tiles/traps/trap4.png"), pygame.image.load("./images/tiles/traps/trap3.png"), pygame.image.load("./images/tiles/traps/trap2.png")]}
+
 class player(pygame.sprite.Sprite):
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
@@ -28,12 +36,13 @@ class player(pygame.sprite.Sprite):
 
 class tile(pygame.sprite.Sprite):
     def __init__(self, image, pos, type, objectpos, data):
+        global images
         pygame.sprite.Sprite.__init__(self)
         self.index = 0
         self.images = [None, None]
         self.image = pygame.image.load("./images/tiles/" + type + ".png")
-        if type == "portal":
-            self.images = [pygame.image.load("./images/tiles/portal.png"), pygame.image.load("./images/tiles/portal2.png")]
+        if type in images.keys():
+            self.images = images[type]
             self.image = self.images[self.index]
         else:
             self.image = pygame.image.load("./images/tiles/" + type + ".png")
@@ -45,10 +54,11 @@ class tile(pygame.sprite.Sprite):
         self.crumble = False
         self.count = 0
     def update(self, pos, action, allclear):
-        if action == "animate" and self.type == "portal":
-            if self.index == 0:
-                self.index = 1
-            elif self.index == 1:
+        global images
+        if action == "animate" and self.type in images.keys():
+            if self.index < len(self.images)-1:
+                self.index += 1
+            else:
                 self.index = 0
             self.image = self.images[self.index]
         if action == "get" and self.rect.collidepoint(allclear.mouse):
@@ -59,7 +69,9 @@ class tile(pygame.sprite.Sprite):
             self.count += 1
             if self.type == "crumble" and self.crumble and self.crumbletime + 1 == self.count:
                 self.type = "trap"
-                self.image = pygame.image.load("./images/tiles/" + self.type + ".png")
+                self.index = 0
+                self.images = images[self.type]
+                self.image = self.images[self.index]
             if self.pos == list(pos):
                 if self.data[1] == "wall":
                     allclear.wallappear = self.data[0]
@@ -74,6 +86,10 @@ class tile(pygame.sprite.Sprite):
                     allclear.moveto = self.data[0]
                     allclear.moveagain = False
                     allclear.sound = "portal"
+                elif self.type == "gem":
+                    allclear.allclear = True
+                    allclear.sound = "gem"
+                    self.kill()
                 elif self.type == "key":
                     allclear.allclear = True
                     allclear.update = "unlockdoor"
@@ -90,6 +106,7 @@ class tile(pygame.sprite.Sprite):
                     conveyertype = self.type.split("conveyer-")[1]
                     if conveyertype == "left":
                         allclear.moveagain = True
+                        print allclear.moveagain
                         allclear.where = self.pos[0] - 1, self.pos[1]
                     if conveyertype == "right":
                         allclear.moveagain = True
@@ -104,7 +121,6 @@ class tile(pygame.sprite.Sprite):
                     allclear.allclear = True
                     allclear.trap = True
                     allclear.moveagain = False
-                    self.kill()
                     allclear.sound = "trap"
                 elif self.type == "crumble":
                     allclear.allclear = True

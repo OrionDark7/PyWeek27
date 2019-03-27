@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.2" tiledversion="1.2.2" name="objects" tilewidth="60" tileheight="60" tilecount="13" columns="0">
+<tileset version="1.2" tiledversion="1.2.2" name="objects" tilewidth="60" tileheight="60" tilecount="14" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
+ <properties>
+  <property name="type" value="gem"/>
+ </properties>
  <tile id="0">
   <properties>
    <property name="type" value="door"/>
@@ -78,5 +81,11 @@
    <property name="type" value="crumble"/>
   </properties>
   <image width="60" height="60" source="../images/tiles/crumble.png"/>
+ </tile>
+ <tile id="13">
+  <properties>
+   <property name="type" value="gem"/>
+  </properties>
+  <image width="60" height="60" source="../images/tiles/gem.png"/>
  </tile>
 </tileset>

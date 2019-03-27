@@ -29,8 +29,17 @@ def loadFile(file,meta):
                 data[line[0]] = [pos, "p2p"]  # Portal to Portal
             if ">" in line:
                 line = line.split(">")
-                pos = stringToTuple(line[1])
-                data[line[0]] = [pos, "k2d"]  # Key to Door
+                if " " in line[1]:
+                    line[1] = line[1].split(" ")
+                    positions = []
+                    for i in line[1]:
+                        print i
+                        pos = stringToTuple(i)
+                        positions.append(pos)
+                    data[line[0]] = [positions, "k2d"]
+                else:
+                    pos = stringToTuple(line[1])
+                    data[line[0]] = [[pos], "k2d"]  # Key opens Door
             if "w" in line:
                 line = line.split("w")
                 if " " in line[1]:
@@ -39,7 +48,7 @@ def loadFile(file,meta):
                     for i in line[1]:
                         pos = stringToTuple(i)
                         positions.append(pos)
-                    data[line[0]] = [positions, "wall"]  # Imaginary Field triggers Wall
+                    data[line[0]] = [positions, "wall"]  # Imaginary Field triggers Multiple Walls
                 else:
                     pos = stringToTuple(line[1])
                     data[line[0]] = [[pos], "wall"]  # Imaginary Field triggers Wall

@@ -13,10 +13,11 @@ running = True
 player = objects.player([250, 150])
 screen = "menu"
 level = 0
-starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [2, 2]]
+starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [2, 2], [0, 2]]
 pygame.time.set_timer(pygame.USEREVENT, 500) #Update Animations every 0.5 seconds
-sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10", "level11", "level12", "level13", "level14"]
-levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5", "level6":"level6", "level7":"level7", "level8":"level8", "level9":"level9", "level10":"level10", "level11":"level11", "level12":"level12", "level13":"level13", "level14":"level14"}
+pygame.time.set_timer(pygame.USEREVENT+1, 75)
+sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10", "level11", "level12", "level13", "level14", "level15"]
+levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5", "level6":"level6", "level7":"level7", "level8":"level8", "level9":"level9", "level10":"level10", "level11":"level11", "level12":"level12", "level13":"level13", "level14":"level14", "level15":"level15"}
 map, floor, traps = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx", "./levels/" + str(levels[sequence[level]]) + ".txt")
 moves = 6
 Move = pygame.mixer.Sound("./sfx/Move.wav")
@@ -25,7 +26,7 @@ mouse = [0, 0]
 fullscreen = False
 music = True
 sfx = True
-sounds = {"key": pygame.mixer.Sound("./sfx/Key.wav"), "portal": pygame.mixer.Sound("./sfx/Portal.wav"), "trap": pygame.mixer.Sound("./sfx/Trap.wav"), "win": pygame.mixer.Sound("./sfx/You Win.wav"), "wall":pygame.mixer.Sound("./sfx/Wall.wav")}
+sounds = {"key": pygame.mixer.Sound("./sfx/Key.wav"), "portal": pygame.mixer.Sound("./sfx/Portal.wav"), "trap": pygame.mixer.Sound("./sfx/Trap.wav"), "win": pygame.mixer.Sound("./sfx/You Win.wav"), "wall":pygame.mixer.Sound("./sfx/Wall.wav"), "gem":pygame.mixer.Sound("./sfx/Gem.wav")}
 prev = "menu"
 
 ui.setFontSize(36)
@@ -39,6 +40,10 @@ fullscreenb = ui.button("Toggle Fullscreen", [5, 105], [255, 255, 255])
 musicb = ui.button("Toggle Music", [5, 195], [255, 255, 255])
 sfxb = ui.button("Toggle SFX", [5, 285], [255, 255, 255])
 
+goalbutton = ui.button("Goal of the Game", [5, 125], [255, 255, 255])
+controlsbutton = ui.button("Controls", [5, 160], [255, 255, 255])
+objectsbutton = ui.button("Objects and Obstacles", [5, 195], [255, 255, 255])
+
 audio = ui.imagebutton("./images/buttons/audio.png", [730, 5], [60, 60])
 musict = ui.imagebutton("./images/buttons/music.png", [665, 5], [60, 60])
 
@@ -48,9 +53,9 @@ def update(action, grp=None): #Updates Specifed Group, if None Specifed, then al
     global player, returnparameters, map, floor, traps
     returnparameters.sound = None
     if grp == None:
-        map.update(player.pos, action, returnparameters)
-        floor.update(player.pos, action, returnparameters)
         traps.update(player.pos, action, returnparameters)
+        floor.update(player.pos, action, returnparameters)
+        map.update(player.pos, action, returnparameters)
     elif grp == map:
         map.update(player.pos, action, returnparameters)
     elif grp == floor:
@@ -138,7 +143,8 @@ def drawCursor():
         returnparameters.mouse = mouse
         returnparameters.type = None
         update("get", grp=map)
-        if returnparameters.type == None:
+        acceptable = [None, "portal", "key", "exit", "gem"]
+        if returnparameters.type in acceptable:
             pygame.draw.rect(window, [0, 255, 0], [coordinates[0], coordinates[1], 60, 60], 3)
         else:
             pygame.draw.rect(window, [255, 0, 0], [coordinates[0], coordinates[1], 60, 60], 3)
@@ -173,7 +179,8 @@ def drawScreen():
         time.sleep(2)
         loadLevel()
     if returnparameters.trap:
-        ui.centeredText("You fell into a hidden Trap!", [400, 55], [255, 255, 255], window)
+        ui.setFontSize(36)
+        ui.centeredText("You fell into a Trap!", [400, 55], [255, 255, 255], window)
         pygame.display.flip()
         time.sleep(2)
         loadLevel()
@@ -276,14 +283,12 @@ def move():
                                 returnparameters.wallappearsat = i
                                 update("wallappear", grp=map)
                         if returnparameters.moveagain:
-                            drawScreen()
-                            time.sleep(0.1)
                             while returnparameters.moveagain:
                                 update("move")
+                                print returnparameters.moveagain
                                 if returnparameters.allclear:
+                                    animatePlayer(player.pos, returnparameters.where)
                                     player.moveto(returnparameters.where)
-                                    drawScreen()
-                                    time.sleep(0.1)
                             if sfx:
                                 Move.play()
                         elif not returnparameters.moveagain:
@@ -389,8 +394,16 @@ while running:
                             teleportPlayer(oldpos, player.pos)
                             returnparameters.reset()
                         if not returnparameters.update == None:
-                            update(returnparameters.update)
-                            returnparameters.reset()
+                            if returnparameters.update == "unlockdoor":
+                                positions = returnparameters.door
+                                for i in positions:
+                                    returnparameters.door = i
+                                    update(returnparameters.update)
+                                returnparameters.reset()
+                            else:
+                                update(returnparameters.update)
+                                returnparameters.reset()
+
                     else:
                         if audio.click(mouse):
                             sfx = not sfx
@@ -402,7 +415,8 @@ while running:
                                 pygame.mixer_music.stop()
         elif event.type == pygame.USEREVENT:
             player.animate()
-            update("animate", grp=map)
+        elif event.type == pygame.USEREVENT+1:
+            update("animate")
 
     if screen == "menu":
         window.fill([0, 0, 0])
@@ -444,6 +458,11 @@ while running:
         ui.setFontSize(64)
         ui.centeredText("How to Play", [400, 5], [255, 255, 255], window)
         back.draw(window)
+        ui.setFontSize(27)
+        ui.text("Click on a Topic Below to learn more about it.", [5, 75], [255, 255, 255], window)
+        goalbutton.draw(window)
+        controlsbutton.draw(window)
+        objectsbutton.draw(window)
     elif screen == "settings":
         window.fill([0, 0, 0])
         ui.setFontSize(64)
