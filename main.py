@@ -134,18 +134,30 @@ def tutorial(): #Displays Tutorial Text
         ui.centeredText("That it for now. But remember, it only gets", [400, 500], [255, 255, 255], window)
         ui.centeredText("more difficult from here...", [400, 530], [255, 255, 255], window)
 
+def adjacent(oldpos, newpos):
+    isAdjacent = False
+    if oldpos[0] + 1 == newpos[0] or oldpos[0] - 1 == newpos[0] or (oldpos[0] == newpos[0] and not oldpos[1] == newpos[1]):
+        if oldpos[1] + 1 == newpos[1] or oldpos[1] - 1 == newpos[1] or (oldpos[1] == newpos[1] and not oldpos[0] == newpos[0]):
+            isAdjacent = True
+    if oldpos == newpos:
+        isAdjacent = True
+    return isAdjacent
+
 def drawCursor():
     global mouse, returnparameters
     if mouse[0] > 250 and mouse[0] < 550 and mouse[1] < 450 and mouse[1] > 150:
         coordinates = [mouse[0] - 250, mouse[1] - 150]
         coordinates = [math.floor(coordinates[0] / 60), math.floor(coordinates[1] / 60)]
+        oldcoordinates = coordinates
         coordinates = [(coordinates[0] * 60)+250, (coordinates[1] * 60)+150]
         returnparameters.mouse = mouse
         returnparameters.type = None
         update("get", grp=map)
         acceptable = [None, "portal", "key", "exit", "gem"]
-        if returnparameters.type in acceptable:
+        if returnparameters.type in acceptable and adjacent(player.pos, oldcoordinates):
             pygame.draw.rect(window, [0, 255, 0], [coordinates[0], coordinates[1], 60, 60], 3)
+        elif not adjacent(player.pos, oldcoordinates) and returnparameters.type in acceptable:
+            pygame.draw.rect(window, [0, 122, 255], [coordinates[0], coordinates[1], 60, 60], 3)
         else:
             pygame.draw.rect(window, [255, 0, 0], [coordinates[0], coordinates[1], 60, 60], 3)
 
@@ -263,7 +275,6 @@ def teleportPlayer(oldpos, newpos):
         image = pygame.transform.scale(player.image, [(2*i), (2*i)])
         window.blit(image, coordinates)
         pygame.display.flip()
-
 
 def move():
     global event, moves, sfx, returnparameters, player, map, Move
@@ -400,6 +411,9 @@ while running:
                                     returnparameters.door = i
                                     update(returnparameters.update)
                                 returnparameters.reset()
+                            elif returnparameters.update == "destroywall":
+                                positions = returnparameters.destroywall
+
                             else:
                                 update(returnparameters.update)
                                 returnparameters.reset()

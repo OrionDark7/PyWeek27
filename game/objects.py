@@ -65,8 +65,23 @@ class tile(pygame.sprite.Sprite):
             allclear.type = self.type
         if action == "wallappear" and self.pos == allclear.wallappearsat:
             self.kill()
+        if action == "destroywall" and self.pos == allclear.destroywallat and self.type == "wall":
+            self.kill()
         if action == "move":
             self.count += 1
+            if self.type.startswith("conveyer") and self.data[1] == "rev":
+                if self.type.endswith("left"):
+                    self.type = "conveyer-right"
+                elif self.type.endswith("right"):
+                    self.type = "conveyer-left"
+                elif self.type.endswith("up"):
+                    self.type = "conveyer-down"
+                elif self.type.endswith("down"):
+                    self.type = "conveyer-up"
+                self.image = pygame.image.load("./images/tiles/" + self.type + ".png")
+            if self.data[1] == "dswall":
+                allclear.destroywall = self.data[0]
+                allclear.update = "destroywall"
             if self.type == "crumble" and self.crumble and self.crumbletime + 1 == self.count:
                 self.type = "trap"
                 self.index = 0

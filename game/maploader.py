@@ -52,6 +52,30 @@ def loadFile(file,meta):
                 else:
                     pos = stringToTuple(line[1])
                     data[line[0]] = [[pos], "wall"]  # Imaginary Field triggers Wall
+            if "dw" in line:
+                line = line.split("dw")
+                if " " in line[1]:
+                    line[1] = line[1].split(" ")
+                    positions = []
+                    for i in line[1]:
+                        pos = stringToTuple(i)
+                        positions.append(pos)
+                    data[line[0]] = [positions, "dswall"]  # Imaginary Field destroys multiple Walls
+                else:
+                    pos = stringToTuple(line[1])
+                    data[line[0]] = [[pos], "dswall"]  # Imaginary Field destroys Wall
+            if "r" in line:
+                line = line.split("r")
+                if " " in line[1]:
+                    line[1] = line[1].split(" ")
+                    positions = []
+                    for i in line[1]:
+                        pos = stringToTuple(i)
+                        positions.append(pos)
+                    data[line[0]] = [positions, "rev"]  # Conveyor Belts Reverse Direction Every Turn.
+                else:
+                    pos = stringToTuple(line[1])
+                    data[line[0]] = [[pos], "rev"]  # Conveyer Belt Reverses Direction Every Turn.
     metadata.close()
     mapdata = load_pygame(str(file))
     map = pygame.sprite.Group()
