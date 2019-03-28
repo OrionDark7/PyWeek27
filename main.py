@@ -165,9 +165,9 @@ def drawCursor():
         returnparameters.type = None
         update("get", grp=map)
         acceptable = [None, "portal", "key", "exit", "gem"]
-        if returnparameters.type in acceptable and adjacent(player.pos, oldcoordinates):
+        if (returnparameters.type in acceptable or str(returnparameters.type).startswith("conveyer")) and adjacent(player.pos, oldcoordinates):
             pygame.draw.rect(window, [0, 255, 0], [coordinates[0], coordinates[1], 60, 60], 3)
-        elif not adjacent(player.pos, oldcoordinates) and returnparameters.type in acceptable:
+        elif not adjacent(player.pos, oldcoordinates) and (returnparameters.type in acceptable or str(returnparameters.type).startswith("conveyer")):
             pygame.draw.rect(window, [0, 122, 255], [coordinates[0], coordinates[1], 60, 60], 3)
         else:
             pygame.draw.rect(window, [255, 0, 0], [coordinates[0], coordinates[1], 60, 60], 3)

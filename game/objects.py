@@ -85,15 +85,15 @@ class tile(pygame.sprite.Sprite):
             self.kill()
         if action == "move":
             self.count += 1
-            if self.data[1] == "dswall":
-                allclear.destroywall = self.data[0]
-                allclear.update = "destroywall"
             if self.type == "crumble" and self.crumble and self.crumbletime + 1 == self.count:
                 self.type = "trap"
                 self.index = 0
                 self.images = images[self.type]
                 self.image = self.images[self.index]
             if self.pos == list(pos):
+                if self.data[1] == "dswall":
+                    allclear.destroywall = self.data[0]
+                    allclear.update = "destroywall"
                 if self.data[1] == "wall":
                     allclear.wallappear = self.data[0]
                     allclear.sound = "wall"
