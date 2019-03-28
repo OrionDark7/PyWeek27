@@ -14,6 +14,7 @@ def stringToTuple(oldstring):
 
 def loadFile(file,meta):
     data = {}
+    conveyerdata = []
     metadata = open(str(meta), "rb")
     for i in range(10):
         try:
@@ -27,7 +28,7 @@ def loadFile(file,meta):
                 line = line.split("=")
                 pos = stringToTuple(line[1])
                 data[line[0]] = [pos, "p2p"]  # Portal to Portal
-            if ">" in line:
+            elif ">" in line:
                 line = line.split(">")
                 if " " in line[1]:
                     line[1] = line[1].split(" ")
@@ -40,19 +41,7 @@ def loadFile(file,meta):
                 else:
                     pos = stringToTuple(line[1])
                     data[line[0]] = [[pos], "k2d"]  # Key opens Door
-            if "w" in line:
-                line = line.split("w")
-                if " " in line[1]:
-                    line[1] = line[1].split(" ")
-                    positions = []
-                    for i in line[1]:
-                        pos = stringToTuple(i)
-                        positions.append(pos)
-                    data[line[0]] = [positions, "wall"]  # Imaginary Field triggers Multiple Walls
-                else:
-                    pos = stringToTuple(line[1])
-                    data[line[0]] = [[pos], "wall"]  # Imaginary Field triggers Wall
-            if "dw" in line:
+            elif "dw" in line:
                 line = line.split("dw")
                 if " " in line[1]:
                     line[1] = line[1].split(" ")
@@ -64,7 +53,19 @@ def loadFile(file,meta):
                 else:
                     pos = stringToTuple(line[1])
                     data[line[0]] = [[pos], "dswall"]  # Imaginary Field destroys Wall
-            if "r" in line:
+            elif "w" in line:
+                line = line.split("w")
+                if " " in line[1]:
+                    line[1] = line[1].split(" ")
+                    positions = []
+                    for i in line[1]:
+                        pos = stringToTuple(i)
+                        positions.append(pos)
+                    data[line[0]] = [positions, "wall"]  # Imaginary Field triggers Multiple Walls
+                else:
+                    pos = stringToTuple(line[1])
+                    data[line[0]] = [[pos], "wall"]  # Imaginary Field triggers Wall
+            elif "r" in line:
                 line = line.split("r")
                 if " " in line[1]:
                     line[1] = line[1].split(" ")
@@ -72,15 +73,17 @@ def loadFile(file,meta):
                     for i in line[1]:
                         pos = stringToTuple(i)
                         positions.append(pos)
-                    data[line[0]] = [positions, "rev"]  # Conveyor Belts Reverse Direction Every Turn.
+                    conveyerdata = [positions, "rev"]  # Conveyor Belts Reverse Direction Every Turn.
                 else:
                     pos = stringToTuple(line[1])
-                    data[line[0]] = [[pos], "rev"]  # Conveyer Belt Reverses Direction Every Turn.
+                    conveyerdata = [[pos], "rev"]  # Conveyer Belt Reverses Direction Every Turn.
     metadata.close()
     mapdata = load_pygame(str(file))
     map = pygame.sprite.Group()
     floor = pygame.sprite.Group()
     trap = pygame.sprite.Group()
+    print data
+    print "DATA DATA DATA DATA"
     for x in range(5):
         for y in range(5):
             tile = mapdata.get_tile_image(x, y, 2)
@@ -88,6 +91,10 @@ def loadFile(file,meta):
             if not tile == None:
                 #print tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y]
                 datastr = str((x,y))
+                try:
+                    print data[datastr]
+                except:
+                    pass
                 try:
                     newtile = objects.tile(tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y], data[datastr])
                 except:
@@ -100,6 +107,10 @@ def loadFile(file,meta):
             if not tile == None:
                 datastr = str((x,y))
                 try:
+                    print data[datastr]
+                except:
+                    pass
+                try:
                     newtile = objects.tile(tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y], data[datastr])
                 except:
                     newtile = objects.tile(tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y], [None, None])
@@ -111,9 +122,13 @@ def loadFile(file,meta):
             if not tile == None:
                 datastr = str((x, y))
                 try:
+                    print data[datastr]
+                except:
+                    pass
+                try:
                     newtile = objects.tile(tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y], data[datastr])
                 except:
                     newtile = objects.tile(tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y], [None, None])
                 trap.add(newtile)
 
-    return map, floor, trap
+    return map, floor, trap, conveyerdata

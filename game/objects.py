@@ -55,6 +55,22 @@ class tile(pygame.sprite.Sprite):
         self.count = 0
     def update(self, pos, action, allclear):
         global images
+        if action == "reverse" and not allclear.conveyerdata == [] and self.type.startswith("conveyer"):
+            if tuple(self.pos) in allclear.conveyerdata[0]:
+                print "WE'RE INSIDE"
+                if self.type.endswith("left"):
+                    self.type = "conveyer-right"
+                elif self.type.endswith("right"):
+                    self.type = "conveyer-left"
+                elif self.type.endswith("up"):
+                    self.type = "conveyer-down"
+                elif self.type.endswith("down"):
+                    self.type = "conveyer-up"
+                self.image = pygame.image.load("./images/tiles/" + self.type + ".png")
+        if action == "update":
+            if self.data[1] == "wall" and self.pos == list(pos):
+                allclear.wallappear = self.data[0]
+                allclear.sound = "wall"
         if action == "animate" and self.type in images.keys():
             if self.index < len(self.images)-1:
                 self.index += 1
@@ -65,20 +81,10 @@ class tile(pygame.sprite.Sprite):
             allclear.type = self.type
         if action == "wallappear" and self.pos == allclear.wallappearsat:
             self.kill()
-        if action == "destroywall" and self.pos == allclear.destroywallat and self.type == "wall":
+        if action == "destroywall" and tuple(self.pos) == allclear.destroywallat and self.type == "wall":
             self.kill()
         if action == "move":
             self.count += 1
-            if self.type.startswith("conveyer") and self.data[1] == "rev":
-                if self.type.endswith("left"):
-                    self.type = "conveyer-right"
-                elif self.type.endswith("right"):
-                    self.type = "conveyer-left"
-                elif self.type.endswith("up"):
-                    self.type = "conveyer-down"
-                elif self.type.endswith("down"):
-                    self.type = "conveyer-up"
-                self.image = pygame.image.load("./images/tiles/" + self.type + ".png")
             if self.data[1] == "dswall":
                 allclear.destroywall = self.data[0]
                 allclear.update = "destroywall"
@@ -121,7 +127,6 @@ class tile(pygame.sprite.Sprite):
                     conveyertype = self.type.split("conveyer-")[1]
                     if conveyertype == "left":
                         allclear.moveagain = True
-                        print allclear.moveagain
                         allclear.where = self.pos[0] - 1, self.pos[1]
                     if conveyertype == "right":
                         allclear.moveagain = True

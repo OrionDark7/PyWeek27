@@ -13,12 +13,17 @@ running = True
 player = objects.player([250, 150])
 screen = "menu"
 level = 0
-starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [2, 2], [0, 2]]
+conveyerdata = []
+starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [2, 2], [2, 2], [1, 0], [0, 0], [0, 0], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [2, 2], [0, 2]]
 pygame.time.set_timer(pygame.USEREVENT, 500) #Update Animations every 0.5 seconds
 pygame.time.set_timer(pygame.USEREVENT+1, 75)
-sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10", "level11", "level12", "level13", "level14", "level15"]
-levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5", "level6":"level6", "level7":"level7", "level8":"level8", "level9":"level9", "level10":"level10", "level11":"level11", "level12":"level12", "level13":"level13", "level14":"level14", "level15":"level15"}
-map, floor, traps = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx", "./levels/" + str(levels[sequence[level]]) + ".txt")
+sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "conveyer1", "conveyer2", "conveyer3", "conveyer4", "conveyer5", "portal1", "portal2", "portal3", "key1", "key2", "key3", "crumble1", "crumble2", "crumble3", "trap1", "trap2", "trap3"]
+
+levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5",
+          "conveyer1":"conveyer1", "conveyer2":"conveyer2", "conveyer3":"conveyer3", "conveyer4":"conveyer4", "conveyer5":"conveyer5",
+          "portal1":"portal1", "portal2":"portal2", "portal3":"portal3", "key1":"key1", "key2":"key2", "key3":"key3",
+          "crumble1":"crumble1", "crumble2":"crumble2", "crumble3":"crumble3", "trap1":"trap1", "trap2":"trap2", "trap3":"trap3"}
+map, floor, traps, conveyerdata = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx", "./levels/" + str(levels[sequence[level]]) + ".txt")
 moves = 6
 Move = pygame.mixer.Sound("./sfx/Move.wav")
 Move.set_volume(0.5)
@@ -81,6 +86,9 @@ class ReturnParameters(pygame.sprite.Sprite): #For use when updating sprite grou
         self.type = None
         self.sound = None
         self.wallappearsat = -1, -1
+        self.destroywall = None
+        self.destroywallat = -1, -1
+        self.conveyerdata = []
     def reset(self):
         self.allclear = True
         self.moveto = None
@@ -95,6 +103,9 @@ class ReturnParameters(pygame.sprite.Sprite): #For use when updating sprite grou
         self.type = None
         self.sound = None
         self.wallappearsat = -1, -1
+        self.destroywall = None
+        self.destroywallat = -1, -1
+        self.conveyerdata = []
 
 returnparameters = ReturnParameters()
 
@@ -105,10 +116,10 @@ def resetGroups(): #Clears Group Values, see loadLevel() for re-loading groups
     traps = pygame.sprite.Group()
 
 def loadLevel(): #Restarts the Level, reloads Groups, and Resets Return Parameters.
-    global map, floor, traps, starts, level, levels, sequence, returnparameters, moves
+    global map, floor, traps, starts, level, levels, sequence, returnparameters, moves, conveyerdata
     resetGroups()
     player.reset(start=starts[level])
-    map, floor, traps = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx",
+    map, floor, traps, conveyerdata = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx",
                                            "./levels/" + str(levels[sequence[level]]) + ".txt")
     returnparameters.reset()
     moves = 6
@@ -277,14 +288,16 @@ def teleportPlayer(oldpos, newpos):
         pygame.display.flip()
 
 def move():
-    global event, moves, sfx, returnparameters, player, map, Move
+    global event, moves, sfx, returnparameters, player, map, Move, conveyerdata
     oldpos = player.pos
     if not oldpos == returnparameters.where: #IF NOT SAME TILE
         if not returnparameters.where[0] < 0 and not returnparameters.where[0] > 5 and not returnparameters.where[1] < 0 and not returnparameters.where[1] > 5:
             if oldpos[0]+1 == returnparameters.where[0] or oldpos[0]-1 == returnparameters.where[0] or (oldpos[0] == returnparameters.where[0] and not oldpos[1] == returnparameters.where[1]):
                 if oldpos[1]+1 == returnparameters.where[1] or oldpos[1]-1 == returnparameters.where[1] or (oldpos[1] == returnparameters.where[1] and not oldpos[0] == returnparameters.where[0]):
                     player.pos = returnparameters.where
+                    returnparameters.conveyerdata = conveyerdata
                     update("move")
+                    update("update")
                     if returnparameters.allclear:
                         player.moveto(returnparameters.where)
                         animatePlayer(oldpos, player.pos)
@@ -293,19 +306,39 @@ def move():
                                 map.add(objects.tile(None, [(i[0]*60)+250, (i[1]*60)+150], "wall", list(i), [None, None]))
                                 returnparameters.wallappearsat = i
                                 update("wallappear", grp=map)
+                        if not returnparameters.destroywall == None:
+                            for i in returnparameters.destroywall:
+                                print "in here"
+                                returnparameters.destroywallat = i
+                                update("destroywall", grp=map)
                         if returnparameters.moveagain:
                             while returnparameters.moveagain:
                                 update("move")
+                                if not returnparameters.wallappear == None:
+                                    for i in returnparameters.wallappear:
+                                        map.add(
+                                            objects.tile(None, [(i[0] * 60) + 250, (i[1] * 60) + 150], "wall", list(i),
+                                                         [None, None]))
+                                        returnparameters.wallappearsat = i
+                                        update("wallappear", grp=map)
+                                if not returnparameters.destroywall == None:
+                                    for i in returnparameters.destroywall:
+                                        print "in here"
+                                        returnparameters.destroywallat = i
+                                        update("destroywall", grp=map)
                                 print returnparameters.moveagain
                                 if returnparameters.allclear:
                                     animatePlayer(player.pos, returnparameters.where)
                                     player.moveto(returnparameters.where)
+                                update("update")
                             if sfx:
                                 Move.play()
+                            moves -= 1
                         elif not returnparameters.moveagain:
                             moves -= 1
                             if sfx:
                                 Move.play()
+                        update("reverse", grp=map)
                     else:
                         player.pos = oldpos
                         returnparameters.reset()
@@ -329,7 +362,7 @@ while running:
                 if event.key == pygame.K_r:
                     player.reset(start=starts[level])
                     resetGroups()
-                    map, floor, traps = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx",
+                    map, floor, traps, conveyerdata = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx",
                                                            "./levels/" + str(levels[sequence[level]]) + ".txt")
                     returnparameters.reset()
                     moves = 6
