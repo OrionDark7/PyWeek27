@@ -82,49 +82,34 @@ def loadFile(file,meta):
     map = pygame.sprite.Group()
     floor = pygame.sprite.Group()
     trap = pygame.sprite.Group()
-    print data
-    print "DATA DATA DATA DATA"
     for x in range(5):
         for y in range(5):
             tile = mapdata.get_tile_image(x, y, 2)
             props = mapdata.get_tile_properties(x, y, 2)
             if not tile == None:
-                #print tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y]
                 datastr = str((x,y))
-                try:
-                    print data[datastr]
-                except:
-                    pass
                 try:
                     newtile = objects.tile(tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y], data[datastr])
                 except:
                     newtile = objects.tile(tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y], [None, None])
                 map.add(newtile)
 
-            tile = mapdata.get_tile_image(x, y, 0)
-            props = mapdata.get_tile_properties(x, y, 0)
+            tile = mapdata.get_tile_image(x, y, 1)
+            props = mapdata.get_tile_properties(x, y, 1)
 
             if not tile == None:
                 datastr = str((x,y))
-                try:
-                    print data[datastr]
-                except:
-                    pass
                 try:
                     newtile = objects.tile(tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y], data[datastr])
                 except:
                     newtile = objects.tile(tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y], [None, None])
                 floor.add(newtile)
 
-            tile = mapdata.get_tile_image(x, y, 1)
-            props = mapdata.get_tile_properties(x, y, 1)
+            tile = mapdata.get_tile_image(x, y, 0)
+            props = mapdata.get_tile_properties(x, y, 0)
 
             if not tile == None:
                 datastr = str((x, y))
-                try:
-                    print data[datastr]
-                except:
-                    pass
                 try:
                     newtile = objects.tile(tile, [(x * 60) + 250, (y * 60) + 150], props["type"], [x, y], data[datastr])
                 except:

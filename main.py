@@ -1,4 +1,4 @@
-import pygame, pytmx, time, math
+import pygame, pytmx, time, math, random
 from game import *
 
 # Six Moves - A PyWeek #27 Entry
@@ -14,7 +14,7 @@ player = objects.player([250, 150])
 screen = "menu"
 level = 0
 conveyerdata = []
-starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [2, 2], [2, 2], [1, 0], [0, 0], [0, 0], [0, 0], [4, 0], [0, 0], [0, 0], [0, 0], [2, 2], [0, 2]]
+starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [2, 2], [2, 2], [1, 0], [0, 0], [0, 0], [1, 2], [4, 0], [0, 0], [2, 0], [0, 2], [0, 0], [0, 0], [0, 2], [0, 0], [2, 0]]
 pygame.time.set_timer(pygame.USEREVENT, 500) #Update Animations every 0.5 seconds
 pygame.time.set_timer(pygame.USEREVENT+1, 75)
 sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "conveyer1", "conveyer2", "conveyer3", "conveyer4", "conveyer5", "portal1", "portal2", "portal3", "key1", "key2", "key3", "crumble1", "crumble2", "crumble3", "trap1", "trap2", "trap3"]
@@ -26,6 +26,7 @@ levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial
 map, floor, traps, conveyerdata = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx", "./levels/" + str(levels[sequence[level]]) + ".txt")
 moves = 6
 Move = pygame.mixer.Sound("./sfx/Move.wav")
+loops = ["./music/stroll.wav", "./music/fate.wav", "./music/thinking.wav"]
 Move.set_volume(0.5)
 mouse = [0, 0]
 fullscreen = False
@@ -33,6 +34,7 @@ music = True
 sfx = True
 sounds = {"key": pygame.mixer.Sound("./sfx/Key.wav"), "portal": pygame.mixer.Sound("./sfx/Portal.wav"), "trap": pygame.mixer.Sound("./sfx/Trap.wav"), "win": pygame.mixer.Sound("./sfx/You Win.wav"), "wall":pygame.mixer.Sound("./sfx/Wall.wav"), "gem":pygame.mixer.Sound("./sfx/Gem.wav")}
 prev = "menu"
+selectpage = 0
 
 ui.setFontSize(36)
 playb = ui.button("Play Game", [400, 75], [255, 255, 255], centered=True)
@@ -53,6 +55,35 @@ audio = ui.imagebutton("./images/buttons/audio.png", [730, 5], [60, 60])
 musict = ui.imagebutton("./images/buttons/music.png", [665, 5], [60, 60])
 
 t1 = ui.imagebutton("./images/levels/tutorial1.png", [28, 100], [100, 100])
+t2 = ui.imagebutton("./images/levels/tutorial2.png", [156, 100], [100, 100])
+t3 = ui.imagebutton("./images/levels/tutorial3.png", [284, 100], [100, 100])
+t4 = ui.imagebutton("./images/levels/tutorial1.png", [412, 100], [100, 100])
+t5 = ui.imagebutton("./images/levels/tutorial1.png", [540, 100], [100, 100])
+t6 = ui.imagebutton("./images/levels/tutorial1.png", [668, 100], [100, 100])
+
+t7 = ui.imagebutton("./images/levels/tutorial1.png", [28, 210], [100, 100])
+t8 = ui.imagebutton("./images/levels/tutorial1.png", [156, 210], [100, 100])
+t9 = ui.imagebutton("./images/levels/tutorial1.png", [284, 210], [100, 100])
+t10 = ui.imagebutton("./images/levels/tutorial1.png", [412, 210], [100, 100])
+t11 = ui.imagebutton("./images/levels/tutorial1.png", [540, 210], [100, 100])
+t12 = ui.imagebutton("./images/levels/tutorial1.png", [668, 210], [100, 100])
+
+t13 = ui.imagebutton("./images/levels/tutorial1.png", [28, 320], [100, 100])
+t14 = ui.imagebutton("./images/levels/tutorial1.png", [156, 320], [100, 100])
+t15 = ui.imagebutton("./images/levels/tutorial1.png", [284, 320], [100, 100])
+t16 = ui.imagebutton("./images/levels/tutorial1.png", [412, 320], [100, 100])
+t17 = ui.imagebutton("./images/levels/tutorial1.png", [540, 320], [100, 100])
+t18 = ui.imagebutton("./images/levels/tutorial1.png", [668, 320], [100, 100])
+
+t19 = ui.imagebutton("./images/levels/tutorial1.png", [28, 430], [100, 100])
+t20 = ui.imagebutton("./images/levels/tutorial1.png", [156, 430], [100, 100])
+t21 = ui.imagebutton("./images/levels/tutorial1.png", [284, 430], [100, 100])
+t22 = ui.imagebutton("./images/levels/tutorial1.png", [412, 430], [100, 100])
+t23 = ui.imagebutton("./images/levels/tutorial1.png", [540, 430], [100, 100])
+t24 = ui.imagebutton("./images/levels/tutorial1.png", [668, 430], [100, 100])
+
+next = ui.button("Next Page", [400, 550], [255, 255, 255], centered=True)
+previous = ui.button("Previous Page", [400, 550], [255, 255, 255], centered=True)
 
 def update(action, grp=None): #Updates Specifed Group, if None Specifed, then all are Updated.
     global player, returnparameters, map, floor, traps
@@ -172,6 +203,12 @@ def drawCursor():
         else:
             pygame.draw.rect(window, [255, 0, 0], [coordinates[0], coordinates[1], 60, 60], 3)
 
+def insideMap(position):
+    inside = False
+    if position[0] >= 0 and position[0] <= 4 and position[1] >= 0 and position[1] <= 4:
+        inside = True
+    return inside
+
 def drawScreen():
     global floor, moves, window, traps, player, returnparameters, map, level
     ui.setFontSize(48)
@@ -184,6 +221,9 @@ def drawScreen():
     drawCursor()
     audio.draw(window)
     musict.draw(window)
+    returnparameters.mouse = player.rect.centerx, player.rect.centery
+    returnparameters.type = None
+    update("get", grp=map)
     if level < 4:
         tutorial()
     if returnparameters.won:
@@ -207,7 +247,14 @@ def drawScreen():
         pygame.display.flip()
         time.sleep(2)
         loadLevel()
+    if not insideMap(player.pos) or returnparameters.type == "wall":
+        ui.setFontSize(36)
+        ui.centeredText("You crashed into a Wall!", [400, 55], [255, 255, 255], window)
+        pygame.display.flip()
+        time.sleep(2)
+        loadLevel()
     pygame.display.flip()
+    returnparameters.mouse = mouse
 
 def setMusic(file):
     global music
@@ -290,17 +337,25 @@ def teleportPlayer(oldpos, newpos):
 def move():
     global event, moves, sfx, returnparameters, player, map, Move, conveyerdata
     oldpos = player.pos
+    sound = None
     if not oldpos == returnparameters.where: #IF NOT SAME TILE
         if not returnparameters.where[0] < 0 and not returnparameters.where[0] > 5 and not returnparameters.where[1] < 0 and not returnparameters.where[1] > 5:
             if oldpos[0]+1 == returnparameters.where[0] or oldpos[0]-1 == returnparameters.where[0] or (oldpos[0] == returnparameters.where[0] and not oldpos[1] == returnparameters.where[1]):
                 if oldpos[1]+1 == returnparameters.where[1] or oldpos[1]-1 == returnparameters.where[1] or (oldpos[1] == returnparameters.where[1] and not oldpos[0] == returnparameters.where[0]):
                     player.pos = returnparameters.where
+                    newpos = returnparameters.where
+                    returnparameters.sound = None
                     returnparameters.conveyerdata = conveyerdata
                     update("move")
+                    sound = returnparameters.sound
                     update("update")
                     if returnparameters.allclear:
                         player.moveto(returnparameters.where)
-                        animatePlayer(oldpos, player.pos)
+                        if returnparameters.moveagain:
+                            animatePlayer(oldpos, newpos)
+                            animatePlayer(newpos, player.pos)
+                        else:
+                            animatePlayer(oldpos, player.pos)
                         if not returnparameters.wallappear == None:
                             for i in returnparameters.wallappear:
                                 map.add(objects.tile(None, [(i[0]*60)+250, (i[1]*60)+150], "wall", list(i), [None, None]))
@@ -308,12 +363,13 @@ def move():
                                 update("wallappear", grp=map)
                         if not returnparameters.destroywall == None:
                             for i in returnparameters.destroywall:
-                                print "in here"
                                 returnparameters.destroywallat = i
                                 update("destroywall", grp=map)
                         if returnparameters.moveagain:
-                            while returnparameters.moveagain:
+                            while returnparameters.moveagain and insideMap(player.pos):
+                                oldpos = player.pos
                                 update("move")
+                                sound = returnparameters.sound
                                 if not returnparameters.wallappear == None:
                                     for i in returnparameters.wallappear:
                                         map.add(
@@ -323,10 +379,8 @@ def move():
                                         update("wallappear", grp=map)
                                 if not returnparameters.destroywall == None:
                                     for i in returnparameters.destroywall:
-                                        print "in here"
                                         returnparameters.destroywallat = i
                                         update("destroywall", grp=map)
-                                print returnparameters.moveagain
                                 if returnparameters.allclear:
                                     animatePlayer(player.pos, returnparameters.where)
                                     player.moveto(returnparameters.where)
@@ -339,11 +393,13 @@ def move():
                             if sfx:
                                 Move.play()
                         update("reverse", grp=map)
+                        if not insideMap(player.pos):
+                            drawScreen()
                     else:
                         player.pos = oldpos
                         returnparameters.reset()
-    if not returnparameters.sound == None and sfx:
-        sounds[str(returnparameters.sound)].play()
+    if not sound == None and sfx:
+        sounds[str(sound)].play()
 
 setMusic("./music/sunshine.wav")
 
@@ -395,7 +451,7 @@ while running:
                         screen = "game"
                         level = 0
                         loadLevel()
-                        setMusic("./music/stroll.wav")
+                        setMusic(random.choice(loops))
                 elif screen == "how to play":
                     if back.click(mouse):
                         screen = prev
@@ -482,6 +538,11 @@ while running:
         back.draw(window)
         ui.setFontSize(16)
         t1.draw(window)
+        t2.draw(window)
+        t3.draw(window)
+        t4.draw(window)
+        t5.draw(window)
+        t6.draw(window)
         ui.centeredText("Tutorial 1", [78, 205], [255, 255, 255], window)
     elif screen == "pause":
         window.fill([0, 0, 0])

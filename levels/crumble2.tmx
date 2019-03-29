@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.2.2" orientation="orthogonal" renderorder="right-down" width="5" height="5" tilewidth="60" tileheight="60" infinite="0" nextlayerid="4" nextobjectid="1">
+ <tileset firstgid="1" source="../data/objects.tsx"/>
+ <layer id="3" name="Hidden Traps" width="5" height="5">
+  <data encoding="csv">
+0,0,0,0,0,
+0,0,0,0,0,
+0,0,0,0,0,
+0,0,0,0,0,
+0,0,0,0,0
+</data>
+ </layer>
+ <layer id="1" name="Floor" width="5" height="5">
+  <data encoding="csv">
+2,2,2,2,2,
+13,2,2,2,2,
+2,2,2,2,2,
+2,2,2,2,2,
+2,2,2,2,2
+</data>
+ </layer>
+ <layer id="2" name="Objects" width="5" height="5">
+  <data encoding="csv">
+0,0,8,8,4,
+0,5,1,5,5,
+3,5,4,10,9,
+11,5,5,5,9,
+4,5,4,7,8
+</data>
+ </layer>
+</map>

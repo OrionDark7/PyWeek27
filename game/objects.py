@@ -57,7 +57,6 @@ class tile(pygame.sprite.Sprite):
         global images
         if action == "reverse" and not allclear.conveyerdata == [] and self.type.startswith("conveyer"):
             if tuple(self.pos) in allclear.conveyerdata[0]:
-                print "WE'RE INSIDE"
                 if self.type.endswith("left"):
                     self.type = "conveyer-right"
                 elif self.type.endswith("right"):
@@ -97,6 +96,7 @@ class tile(pygame.sprite.Sprite):
                 if self.data[1] == "wall":
                     allclear.wallappear = self.data[0]
                     allclear.sound = "wall"
+                    print allclear.sound
                 if self.type == "tile":
                     allclear.moveagain = False
                 elif self.type == "wall" or self.type == "door":
@@ -107,9 +107,11 @@ class tile(pygame.sprite.Sprite):
                     allclear.moveto = self.data[0]
                     allclear.moveagain = False
                     allclear.sound = "portal"
+                    print allclear.sound
                 elif self.type == "gem":
                     allclear.allclear = True
                     allclear.sound = "gem"
+                    print allclear.sound
                     self.kill()
                 elif self.type == "key":
                     allclear.allclear = True
@@ -117,11 +119,13 @@ class tile(pygame.sprite.Sprite):
                     allclear.door = self.data[0]
                     allclear.moveagain = False
                     allclear.sound = "key"
+                    print allclear.sound
                     self.kill()
                 elif self.type == "exit":
                     allclear.moveagain = False
                     allclear.won = True
                     allclear.sound = "win"
+                    print allclear.sound
                 elif self.type.startswith("conveyer"):
                     allclear.allclear = True
                     conveyertype = self.type.split("conveyer-")[1]
@@ -142,10 +146,12 @@ class tile(pygame.sprite.Sprite):
                     allclear.trap = True
                     allclear.moveagain = False
                     allclear.sound = "trap"
+                    print allclear.sound
                 elif self.type == "crumble":
                     allclear.allclear = True
                     self.crumble = True
                     self.crumbletime = self.count
+            print allclear.sound
         elif action == "unlockdoor" and self.type == "door":
             if self.pos[0] == allclear.door[0] and self.pos[1] == allclear.door[1]:
                 self.kill()
