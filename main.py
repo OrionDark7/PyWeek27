@@ -19,6 +19,7 @@ pygame.time.set_timer(pygame.USEREVENT, 500) #Update Animations every 0.5 second
 pygame.time.set_timer(pygame.USEREVENT+1, 75)
 sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "conveyer1", "conveyer2", "conveyer3", "conveyer4", "conveyer5", "portal1", "portal2", "portal3", "key1", "key2", "key3", "crumble1", "crumble2", "crumble3", "trap1", "trap2", "trap3"]
 
+howtoplayimages = [pygame.surface.Surface([800, 600]), pygame.surface.Surface([800, 600]), pygame.surface.Surface([800, 600]), pygame.surface.Surface([800, 600])]
 levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5",
           "conveyer1":"conveyer1", "conveyer2":"conveyer2", "conveyer3":"conveyer3", "conveyer4":"conveyer4", "conveyer5":"conveyer5",
           "portal1":"portal1", "portal2":"portal2", "portal3":"portal3", "key1":"key1", "key2":"key2", "key3":"key3",
@@ -35,6 +36,7 @@ sfx = True
 sounds = {"key": pygame.mixer.Sound("./sfx/Key.wav"), "portal": pygame.mixer.Sound("./sfx/Portal.wav"), "trap": pygame.mixer.Sound("./sfx/Trap.wav"), "win": pygame.mixer.Sound("./sfx/You Win.wav"), "wall":pygame.mixer.Sound("./sfx/Wall.wav"), "gem":pygame.mixer.Sound("./sfx/Gem.wav")}
 prev = "menu"
 selectpage = 0
+page = 0
 
 ui.setFontSize(36)
 playb = ui.button("Play Game", [400, 75], [255, 255, 255], centered=True)
@@ -50,6 +52,7 @@ sfxb = ui.button("Toggle SFX", [5, 285], [255, 255, 255])
 goalbutton = ui.button("Goal of the Game", [5, 125], [255, 255, 255])
 controlsbutton = ui.button("Controls", [5, 160], [255, 255, 255])
 objectsbutton = ui.button("Objects and Obstacles", [5, 195], [255, 255, 255])
+gamemechbutton = ui.button("Game Mechanics", [5, 230], [255, 255, 255])
 
 audio = ui.imagebutton("./images/buttons/audio.png", [730, 5], [60, 60])
 musict = ui.imagebutton("./images/buttons/music.png", [665, 5], [60, 60])
@@ -184,6 +187,24 @@ def adjacent(oldpos, newpos):
     if oldpos == newpos:
         isAdjacent = True
     return isAdjacent
+
+def howtoplay():
+    global window, page, howtoplayimages
+    if page == 0:
+        window.fill([0, 0, 0])
+        ui.setFontSize(64)
+        ui.centeredText("How to Play", [400, 5], [255, 255, 255], window)
+        back.draw(window)
+        ui.setFontSize(27)
+        ui.text("Click on a Topic Below to learn more about it.", [5, 75], [255, 255, 255], window)
+        goalbutton.draw(window)
+        controlsbutton.draw(window)
+        objectsbutton.draw(window)
+        gamemechbutton.draw(window)
+    elif page > 0:
+        window.blit(howtoplayimages[page], [0, 0])
+        back.draw(window)
+
 
 def drawCursor():
     global mouse, returnparameters
@@ -563,14 +584,7 @@ while running:
         quitb.draw(window)
     elif screen == "how to play":
         window.fill([0, 0, 0])
-        ui.setFontSize(64)
-        ui.centeredText("How to Play", [400, 5], [255, 255, 255], window)
-        back.draw(window)
-        ui.setFontSize(27)
-        ui.text("Click on a Topic Below to learn more about it.", [5, 75], [255, 255, 255], window)
-        goalbutton.draw(window)
-        controlsbutton.draw(window)
-        objectsbutton.draw(window)
+        howtoplay()
     elif screen == "settings":
         window.fill([0, 0, 0])
         ui.setFontSize(64)
