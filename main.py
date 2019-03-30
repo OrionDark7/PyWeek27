@@ -17,9 +17,19 @@ conveyerdata = []
 starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [2, 2], [2, 2], [1, 0], [0, 0], [0, 0], [1, 2], [4, 0], [0, 0], [2, 0], [0, 2], [0, 0], [0, 0], [0, 2], [0, 0], [2, 0]]
 pygame.time.set_timer(pygame.USEREVENT, 500) #Update Animations every 0.5 seconds
 pygame.time.set_timer(pygame.USEREVENT+1, 75)
+playerimages = [pygame.image.load("./images/player/goo.png"), pygame.image.load("./images/player/dot.png"), pygame.image.load("./images/player/x5.png"), pygame.image.load("./images/player/x4.png"), pygame.image.load("./images/player/x3.png"),
+                pygame.image.load("./images/player/x2.png"), pygame.image.load("./images/player/x.png")]
+levelimages = [pygame.image.load("./images/levels/tutorial1.png"), pygame.image.load("./images/levels/tutorial2.png"), pygame.image.load("./images/levels/tutorial3.png"), pygame.image.load("./images/levels/level1.png"),
+               pygame.image.load("./images/levels/level2.png"), pygame.image.load("./images/levels/level3.png"), pygame.image.load("./images/levels/level4.png"), pygame.image.load("./images/levels/level5.png"),
+               pygame.image.load("./images/levels/conveyer1.png"), pygame.image.load("./images/levels/conveyer2.png"), pygame.image.load("./images/levels/conveyer3.png"), pygame.image.load("./images/levels/conveyer4.png"),
+               pygame.image.load("./images/levels/conveyer5.png"), pygame.image.load("./images/levels/portal1.png"), pygame.image.load("./images/levels/portal2.png"), pygame.image.load("./images/levels/portal3.png"),
+               pygame.image.load("./images/levels/key1.png"), pygame.image.load("./images/levels/key2.png"), pygame.image.load("./images/levels/key3.png"), pygame.image.load("./images/levels/crumble1.png"),
+               pygame.image.load("./images/levels/crumble2.png"), pygame.image.load("./images/levels/crumble3.png"), pygame.image.load("./images/levels/trap1.png"), pygame.image.load("./images/levels/trap2.png"),
+               pygame.image.load("./images/levels/trap3.png")]
+levelnames = ["Tutorial 1", "Tutorial 2", "Tutorial 3", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9", "Level 10", "Level 11", "Level 12", "Level 13", "Level 14", "Level 15", "Level 16", "Level 17", "Level 18", "Level 19", "Level 20", "Level 21", "Level 22"]
 sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "conveyer1", "conveyer2", "conveyer3", "conveyer4", "conveyer5", "portal1", "portal2", "portal3", "key1", "key2", "key3", "crumble1", "crumble2", "crumble3", "trap1", "trap2", "trap3"]
 
-howtoplayimages = [pygame.surface.Surface([800, 600]), pygame.surface.Surface([800, 600]), pygame.surface.Surface([800, 600]), pygame.surface.Surface([800, 600])]
+howtoplayimages = [pygame.image.load("./images/howtoplay/goal.png"), pygame.image.load("./images/howtoplay/controls.png"), pygame.image.load("./images/howtoplay/objects.png"), pygame.image.load("./images/howtoplay/move.png")]
 levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5",
           "conveyer1":"conveyer1", "conveyer2":"conveyer2", "conveyer3":"conveyer3", "conveyer4":"conveyer4", "conveyer5":"conveyer5",
           "portal1":"portal1", "portal2":"portal2", "portal3":"portal3", "key1":"key1", "key2":"key2", "key3":"key3",
@@ -33,7 +43,7 @@ mouse = [0, 0]
 fullscreen = False
 music = True
 sfx = True
-sounds = {"key": pygame.mixer.Sound("./sfx/Key.wav"), "portal": pygame.mixer.Sound("./sfx/Portal.wav"), "trap": pygame.mixer.Sound("./sfx/Trap.wav"), "win": pygame.mixer.Sound("./sfx/You Win.wav"), "wall":pygame.mixer.Sound("./sfx/Wall.wav"), "gem":pygame.mixer.Sound("./sfx/Gem.wav")}
+sounds = {"key": pygame.mixer.Sound("./sfx/Key.wav"), "portal": pygame.mixer.Sound("./sfx/Portal.wav"), "trap": pygame.mixer.Sound("./sfx/Trap.wav"), "win": pygame.mixer.Sound("./sfx/You Win.wav"), "wall":pygame.mixer.Sound("./sfx/Wall.wav"), "gem":pygame.mixer.Sound("./sfx/Gem.wav"), "splat":pygame.mixer.Sound("./sfx/Splat.wav")}
 prev = "menu"
 selectpage = 0
 page = 0
@@ -44,7 +54,7 @@ resumeb = ui.button("Resume Game", [400, 75], [255, 255, 255], centered=True)
 howtoplayb = ui.button("How to Play", [400, 110], [255, 255, 255], centered=True)
 settingsb = ui.button("Settings", [400, 145], [255, 255, 255], centered=True)
 quitb = ui.button("Quit Game", [400, 180], [255, 255, 255], centered=True)
-back = ui.button("Back", [5, 5], [255, 255, 255])
+back = ui.button("Back", [5, 5], [255, 0, 0])
 fullscreenb = ui.button("Toggle Fullscreen", [5, 105], [255, 255, 255])
 musicb = ui.button("Toggle Music", [5, 195], [255, 255, 255])
 sfxb = ui.button("Toggle SFX", [5, 285], [255, 255, 255])
@@ -52,41 +62,18 @@ sfxb = ui.button("Toggle SFX", [5, 285], [255, 255, 255])
 goalbutton = ui.button("Goal of the Game", [5, 125], [255, 255, 255])
 controlsbutton = ui.button("Controls", [5, 160], [255, 255, 255])
 objectsbutton = ui.button("Objects and Obstacles", [5, 195], [255, 255, 255])
-gamemechbutton = ui.button("Game Mechanics", [5, 230], [255, 255, 255])
+gamemechbutton = ui.button("Movement", [5, 230], [255, 255, 255])
 
 audio = ui.imagebutton("./images/buttons/audio.png", [730, 5], [60, 60])
 musict = ui.imagebutton("./images/buttons/music.png", [665, 5], [60, 60])
 
-t1 = ui.imagebutton("./images/levels/tutorial1.png", [28, 100], [100, 100])
-t2 = ui.imagebutton("./images/levels/tutorial2.png", [156, 100], [100, 100])
-t3 = ui.imagebutton("./images/levels/tutorial3.png", [284, 100], [100, 100])
-t4 = ui.imagebutton("./images/levels/tutorial1.png", [412, 100], [100, 100])
-t5 = ui.imagebutton("./images/levels/tutorial1.png", [540, 100], [100, 100])
-t6 = ui.imagebutton("./images/levels/tutorial1.png", [668, 100], [100, 100])
+ui.setFontSize(24)
+restart = ui.button("Restart", [5, 30], [0, 200, 255])
 
-t7 = ui.imagebutton("./images/levels/tutorial1.png", [28, 210], [100, 100])
-t8 = ui.imagebutton("./images/levels/tutorial1.png", [156, 210], [100, 100])
-t9 = ui.imagebutton("./images/levels/tutorial1.png", [284, 210], [100, 100])
-t10 = ui.imagebutton("./images/levels/tutorial1.png", [412, 210], [100, 100])
-t11 = ui.imagebutton("./images/levels/tutorial1.png", [540, 210], [100, 100])
-t12 = ui.imagebutton("./images/levels/tutorial1.png", [668, 210], [100, 100])
-
-t13 = ui.imagebutton("./images/levels/tutorial1.png", [28, 320], [100, 100])
-t14 = ui.imagebutton("./images/levels/tutorial1.png", [156, 320], [100, 100])
-t15 = ui.imagebutton("./images/levels/tutorial1.png", [284, 320], [100, 100])
-t16 = ui.imagebutton("./images/levels/tutorial1.png", [412, 320], [100, 100])
-t17 = ui.imagebutton("./images/levels/tutorial1.png", [540, 320], [100, 100])
-t18 = ui.imagebutton("./images/levels/tutorial1.png", [668, 320], [100, 100])
-
-t19 = ui.imagebutton("./images/levels/tutorial1.png", [28, 430], [100, 100])
-t20 = ui.imagebutton("./images/levels/tutorial1.png", [156, 430], [100, 100])
-t21 = ui.imagebutton("./images/levels/tutorial1.png", [284, 430], [100, 100])
-t22 = ui.imagebutton("./images/levels/tutorial1.png", [412, 430], [100, 100])
-t23 = ui.imagebutton("./images/levels/tutorial1.png", [540, 430], [100, 100])
-t24 = ui.imagebutton("./images/levels/tutorial1.png", [668, 430], [100, 100])
-
-next = ui.button("Next Page", [400, 550], [255, 255, 255], centered=True)
-previous = ui.button("Previous Page", [400, 550], [255, 255, 255], centered=True)
+ui.setFontSize(36)
+startlevel = ui.button("Start Level", [400, 535], [0, 255, 0], centered=True)
+next = ui.button("Next >", [675, 280], [255, 255, 255], centered=True)
+previous = ui.button("< Prev.", [125, 280], [255, 255, 255], centered=True)
 
 def update(action, grp=None): #Updates Specifed Group, if None Specifed, then all are Updated.
     global player, returnparameters, map, floor, traps
@@ -202,9 +189,8 @@ def howtoplay():
         objectsbutton.draw(window)
         gamemechbutton.draw(window)
     elif page > 0:
-        window.blit(howtoplayimages[page], [0, 0])
+        window.blit(howtoplayimages[page - 1], [0, 0])
         back.draw(window)
-
 
 def drawCursor():
     global mouse, returnparameters
@@ -244,6 +230,9 @@ def drawScreen():
     musict.draw(window)
     returnparameters.mouse = player.rect.centerx, player.rect.centery
     returnparameters.type = None
+    ui.setFontSize(24)
+    ui.text(levelnames[level], [5, 5], [255, 255, 255], window)
+    restart.draw(window)
     update("get", grp=map)
     if level < 4:
         tutorial()
@@ -269,6 +258,8 @@ def drawScreen():
         time.sleep(2)
         loadLevel()
     if not insideMap(player.pos) or returnparameters.type == "wall":
+        sounds["splat"].play()
+        animateDeath()
         ui.setFontSize(36)
         ui.centeredText("You crashed into a Wall!", [400, 55], [255, 255, 255], window)
         pygame.display.flip()
@@ -305,8 +296,28 @@ def toggleFullscreen():
     elif not fullscreen:
         window = pygame.display.set_mode([800, 600])
 
+def animateDeath():
+    global map, floor, traps, player, playerimages, level, levelnames
+    for i in range(len(playerimages)):
+        window.fill([0, 0, 0])
+        traps.draw(window)
+        floor.draw(window)
+        map.draw(window)
+        audio.draw(window)
+        musict.draw(window)
+        ui.setFontSize(48)
+        ui.centeredText("Moves: " + str(moves), [400, 5], [255, 255, 255], window)
+        ui.setFontSize(24)
+        ui.text(levelnames[level], [5, 5], [255, 255, 255], window)
+        restart.draw(window)
+        player.image = playerimages[i]
+        window.blit(player.image, [player.rect.left, player.rect.top])
+        pygame.display.flip()
+        time.sleep(0.03)
+    player.image = pygame.image.load("./images/player/goo.png")
+
 def animatePlayer(oldpos, newpos):
-    global window, map, floor, traps, player
+    global window, map, floor, traps, player, level, levelnames
     for i in range(20):
         window.fill([0, 0, 0])
         traps.draw(window)
@@ -316,6 +327,9 @@ def animatePlayer(oldpos, newpos):
         musict.draw(window)
         ui.setFontSize(48)
         ui.centeredText("Moves: " + str(moves), [400, 5], [255, 255, 255], window)
+        ui.setFontSize(24)
+        ui.text(levelnames[level], [5, 5], [255, 255, 255], window)
+        restart.draw(window)
         if level < 4:
             tutorial()
         coordinates = [(oldpos[0] * 60) + ((newpos[0]-oldpos[0])*(3*i)) + 250, (oldpos[1] * 60) + ((newpos[1]-oldpos[1])*(3*i)) + 150]
@@ -468,14 +482,36 @@ while running:
                 elif screen == "select":
                     if back.click(mouse):
                         screen = "menu"
-                    if t1.click(mouse):
+                    if next.click(mouse):
+                        if selectpage < 25:
+                            selectpage += 1
+                        if selectpage == 25:
+                            selectpage = 0
+                    if previous.click(mouse):
+                        if selectpage > 0:
+                            selectpage -=1
+                        elif selectpage <= 0:
+                            selectpage = 24
+                    if startlevel.click(mouse):
                         screen = "game"
-                        level = 0
+                        level = selectpage
                         loadLevel()
                         setMusic(random.choice(loops))
                 elif screen == "how to play":
-                    if back.click(mouse):
-                        screen = prev
+                    if page == 0:
+                        if back.click(mouse):
+                            screen = prev
+                        elif goalbutton.click(mouse):
+                            page = 1
+                        elif controlsbutton.click(mouse):
+                            page = 2
+                        elif objectsbutton.click(mouse):
+                            page = 3
+                        elif gamemechbutton.click(mouse):
+                            page = 4
+                    elif page > 0:
+                        if back.click(mouse):
+                            page = 0
                 elif screen == "settings":
                     if back.click(mouse):
                         screen = prev
@@ -537,6 +573,8 @@ while running:
                             updateMusicButtons()
                             if not music:
                                 pygame.mixer_music.stop()
+                        if restart.click(mouse):
+                            loadLevel()
         elif event.type == pygame.USEREVENT:
             player.animate()
         elif event.type == pygame.USEREVENT+1:
@@ -557,14 +595,11 @@ while running:
         ui.setFontSize(64)
         ui.centeredText("Level Select", [400, 5], [255, 255, 255], window)
         back.draw(window)
-        ui.setFontSize(16)
-        t1.draw(window)
-        t2.draw(window)
-        t3.draw(window)
-        t4.draw(window)
-        t5.draw(window)
-        t6.draw(window)
-        ui.centeredText("Tutorial 1", [78, 205], [255, 255, 255], window)
+        window.blit(levelimages[selectpage], [250, 150])
+        ui.centeredText(str(levelnames[selectpage]), [400, 460], [255, 255, 255], window)
+        next.draw(window)
+        previous.draw(window)
+        startlevel.draw(window)
     elif screen == "pause":
         window.fill([0, 0, 0])
         traps.draw(window)
