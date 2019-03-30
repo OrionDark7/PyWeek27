@@ -6,7 +6,8 @@ images = {"key":[pygame.image.load("./images/tiles/key.png"), pygame.image.load(
                            pygame.image.load("./images/tiles/keys/key5.png"), pygame.image.load("./images/tiles/keys/key6.png"), pygame.image.load("./images/tiles/keys/key7.png"), pygame.image.load("./images/tiles/keys/key8.png"),
                            pygame.image.load("./images/tiles/keys/key9.png"), pygame.image.load("./images/tiles/keys/key10.png"), pygame.image.load("./images/tiles/key.png"), pygame.image.load("./images/tiles/key.png"),
                             pygame.image.load("./images/tiles/key.png"), pygame.image.load("./images/tiles/key.png"), pygame.image.load("./images/tiles/key.png")],
-        "portal":[pygame.image.load("./images/tiles/portal.png"), pygame.image.load("./images/tiles/portal2.png")],
+        "portal":[pygame.image.load("./images/tiles/portal4.png"), pygame.image.load("./images/tiles/portal.png"), pygame.image.load("./images/tiles/portal2.png"), pygame.image.load("./images/tiles/portal3.png"),
+                  pygame.image.load("./images/tiles/portal2.png"), pygame.image.load("./images/tiles/portal.png"), pygame.image.load("./images/tiles/portal4.png")],
         "trap":[pygame.image.load("./images/tiles/trap.png"), pygame.image.load("./images/tiles/traps/trap2.png"), pygame.image.load("./images/tiles/traps/trap3.png"), pygame.image.load("./images/tiles/traps/trap4.png")]}
 
 terrain = None
@@ -150,7 +151,6 @@ class tile(pygame.sprite.Sprite):
                     allclear.allclear = True
                     self.crumble = True
                     self.crumbletime = self.count
-            print allclear.sound
         elif action == "unlockdoor" and self.type == "door":
             if self.pos[0] == allclear.door[0] and self.pos[1] == allclear.door[1]:
                 self.kill()

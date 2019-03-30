@@ -34,7 +34,6 @@ def loadFile(file,meta):
                     line[1] = line[1].split(" ")
                     positions = []
                     for i in line[1]:
-                        print i
                         pos = stringToTuple(i)
                         positions.append(pos)
                     data[line[0]] = [positions, "k2d"]

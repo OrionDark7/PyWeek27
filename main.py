@@ -16,7 +16,7 @@ screen = "menu"
 level = 0
 conveyerdata = []
 terrain = None
-starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [2, 2], [2, 2], [1, 0], [0, 0], [0, 0], [1, 2], [4, 0], [0, 0], [2, 0], [0, 2], [0, 0], [0, 0], [0, 2], [0, 0], [2, 0]]
+starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [2, 2], [2, 2], [1, 0], [0, 0], [0, 0], [1, 2], [4, 0], [0, 0], [2, 0], [0, 2], [0, 0], [0, 0], [0, 2], [0, 0], [2, 0], [0, 0], [2, 0], [0, 0], [4, 0], [1, 1]]
 pygame.time.set_timer(pygame.USEREVENT, 500) #Update Animations every 0.5 seconds
 pygame.time.set_timer(pygame.USEREVENT+1, 75)
 fullscreen = False
@@ -35,15 +35,18 @@ if load:
 options.close()
 if fullscreen:
     window = pygame.display.set_mode([800, 600], pygame.FULLSCREEN)
-unlocked = [True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]
+unlocked = [True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]
 unlockedfile = open("./data/unlocked.dat", "rb")
 try:
     unlocked = pickle.load(unlockedfile)
 except:
     pass
 unlockedfile.close()
+about = pygame.image.load("./images/about.png")
 lock = pygame.image.load("./images/lock.png")
-logo = pygame.image.load("./images/six-moves.png")
+logos = [pygame.image.load("./images/six-moves.png"), pygame.image.load("./images/six-moves2.png")]
+logoindex = 0
+logo = logos[logoindex]
 playerimages = [pygame.image.load("./images/player/goo.png"), pygame.image.load("./images/player/dot.png"), pygame.image.load("./images/player/x5.png"), pygame.image.load("./images/player/x4.png"), pygame.image.load("./images/player/x3.png"),
                 pygame.image.load("./images/player/x2.png"), pygame.image.load("./images/player/x.png")]
 levelimages = [pygame.image.load("./images/levels/tutorial1.png"), pygame.image.load("./images/levels/tutorial2.png"), pygame.image.load("./images/levels/tutorial3.png"), pygame.image.load("./images/levels/level1.png"),
@@ -52,14 +55,19 @@ levelimages = [pygame.image.load("./images/levels/tutorial1.png"), pygame.image.
                pygame.image.load("./images/levels/conveyer5.png"), pygame.image.load("./images/levels/portal1.png"), pygame.image.load("./images/levels/portal2.png"), pygame.image.load("./images/levels/portal3.png"),
                pygame.image.load("./images/levels/key1.png"), pygame.image.load("./images/levels/key2.png"), pygame.image.load("./images/levels/key3.png"), pygame.image.load("./images/levels/crumble1.png"),
                pygame.image.load("./images/levels/crumble2.png"), pygame.image.load("./images/levels/crumble3.png"), pygame.image.load("./images/levels/trap1.png"), pygame.image.load("./images/levels/trap2.png"),
-               pygame.image.load("./images/levels/trap3.png")]
-levelnames = ["Tutorial 1", "Tutorial 2", "Tutorial 3", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9", "Level 10", "Level 11", "Level 12", "Level 13", "Level 14", "Level 15", "Level 16", "Level 17", "Level 18", "Level 19", "Level 20", "Level 21", "Level 22"]
-sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "conveyer1", "conveyer2", "conveyer3", "conveyer4", "conveyer5", "portal1", "portal2", "portal3", "key1", "key2", "key3", "crumble1", "crumble2", "crumble3", "trap1", "trap2", "trap3"]
+               pygame.image.load("./images/levels/trap3.png"), pygame.image.load("./images/levels/level23.png"), pygame.image.load("./images/levels/level24.png"), pygame.image.load("./images/levels/level25.png"),
+               pygame.image.load("./images/levels/level26.png"), pygame.image.load("./images/levels/level27.png")]
+menuimage = pygame.transform.scale(random.choice(levelimages), [1000, 1000])
+menux = 0
+menuy = 0
+levelnames = ["Tutorial 1", "Tutorial 2", "Tutorial 3", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9", "Level 10", "Level 11", "Level 12", "Level 13", "Level 14", "Level 15", "Level 16", "Level 17", "Level 18", "Level 19", "Level 20", "Level 21", "Level 22", "Level 23", "Level 24", "Level 25", "Level 26", "Level 27"]
+sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "conveyer1", "conveyer2", "conveyer3", "conveyer4", "conveyer5", "portal1", "portal2", "portal3", "key1", "key2", "key3", "crumble1", "crumble2", "crumble3", "trap1", "trap2", "trap3", "level23", "level24", "level25", "level26", "level27"]
 howtoplayimages = [pygame.image.load("./images/howtoplay/goal.png"), pygame.image.load("./images/howtoplay/controls.png"), pygame.image.load("./images/howtoplay/objects.png"), pygame.image.load("./images/howtoplay/move.png")]
 levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5",
           "conveyer1":"conveyer1", "conveyer2":"conveyer2", "conveyer3":"conveyer3", "conveyer4":"conveyer4", "conveyer5":"conveyer5",
           "portal1":"portal1", "portal2":"portal2", "portal3":"portal3", "key1":"key1", "key2":"key2", "key3":"key3",
-          "crumble1":"crumble1", "crumble2":"crumble2", "crumble3":"crumble3", "trap1":"trap1", "trap2":"trap2", "trap3":"trap3"}
+          "crumble1":"crumble1", "crumble2":"crumble2", "crumble3":"crumble3", "trap1":"trap1", "trap2":"trap2", "trap3":"trap3",
+          "level23":"level23", "level24":"level24", "level25":"level25", "level26":"level26", "level27":"level27"}
 map, floor, traps, conveyerdata = maploader.loadFile("./levels/" + str(sequence[level]) + ".tmx", "./levels/" + str(levels[sequence[level]]) + ".txt")
 moves = 6
 Move = pygame.mixer.Sound("./sfx/Move.wav")
@@ -71,17 +79,19 @@ prev = "menu"
 selectpage = 0
 page = 0
 trap = None
+menusequence = 0
 
 ui.setFontSize(36)
-playb = ui.button("Play Game", [400, 75], [255, 255, 255], centered=True)
-resumeb = ui.button("Resume Game", [400, 75], [255, 255, 255], centered=True)
-howtoplayb = ui.button("How to Play", [400, 110], [255, 255, 255], centered=True)
-settingsb = ui.button("Settings", [400, 145], [255, 255, 255], centered=True)
-quitb = ui.button("Quit Game", [400, 180], [255, 255, 255], centered=True)
+playb = ui.button("Play Game", [400, 95], [255, 255, 255], centered=True)
+resumeb = ui.button("Resume Game", [400, 95], [255, 255, 255], centered=True)
+howtoplayb = ui.button("How to Play", [400, 130], [255, 255, 255], centered=True)
+settingsb = ui.button("Settings", [400, 165], [255, 255, 255], centered=True)
+quitb = ui.button("Quit Game", [400, 200], [255, 255, 255], centered=True)
 back = ui.button("Back", [5, 5], [255, 0, 0])
 fullscreenb = ui.button("Toggle Fullscreen", [5, 105], [255, 255, 255])
 musicb = ui.button("Toggle Music", [5, 195], [255, 255, 255])
 sfxb = ui.button("Toggle SFX", [5, 285], [255, 255, 255])
+aboutbutton = ui.button("More About this Game", [5, 375], [0, 128, 255])
 
 goalbutton = ui.button("Goal of the Game", [5, 125], [255, 255, 255])
 controlsbutton = ui.button("Controls", [5, 160], [255, 255, 255])
@@ -267,7 +277,6 @@ def drawScreen():
     ui.text(levelnames[level], [5, 5], [255, 255, 255], window)
     restart.draw(window)
     update("get", grp=map)
-    print returnparameters.trap
     if level < 4:
         tutorial()
     if returnparameters.won:
@@ -277,15 +286,20 @@ def drawScreen():
         time.sleep(2)
         level += 1
         if level >= len(sequence):
-            level = 0
-        loadLevel()
-        unlocked[level] = True
-    if moves == 0:
+            level = 30
+        try:
+            unlocked[level] = True
+        except:
+            pass
+        if level < 30:
+            loadLevel()
+        returnparameters.won = False
+    elif moves == 0:
         ui.centeredText("Out of Moves!", [400, 55], [255, 255, 255], window)
         pygame.display.flip()
         time.sleep(2)
         loadLevel()
-    if trap:
+    elif trap:
         ui.setFontSize(36)
         ui.centeredText("You fell into a Trap!", [400, 55], [255, 255, 255], window)
         pygame.display.flip()
@@ -293,7 +307,7 @@ def drawScreen():
         loadLevel()
         returnparameters.reset()
         trap = False
-    if not insideMap(player.pos) or returnparameters.type == "wall" or returnparameters.type == "door":
+    elif not insideMap(player.pos) or returnparameters.type == "wall" or returnparameters.type == "door":
         sounds["splat"].play()
         animateDeath()
         ui.setFontSize(36)
@@ -382,6 +396,9 @@ def teleportPlayer(oldpos, newpos):
         map.draw(window)
         ui.setFontSize(48)
         ui.centeredText("Moves: " + str(moves), [400, 5], [255, 255, 255], window)
+        ui.setFontSize(24)
+        ui.text(levelnames[level], [5, 5], [255, 255, 255], window)
+        restart.draw(window)
         audio.draw(window)
         musict.draw(window)
         if level < 4:
@@ -399,6 +416,9 @@ def teleportPlayer(oldpos, newpos):
         ui.centeredText("Moves: " + str(moves), [400, 5], [255, 255, 255], window)
         audio.draw(window)
         musict.draw(window)
+        ui.setFontSize(24)
+        ui.text(levelnames[level], [5, 5], [255, 255, 255], window)
+        restart.draw(window)
         if level < 4:
             tutorial()
         coordinates = [newpos[0]*60+(30-i)+250, newpos[1]*60+(30-i)+150]
@@ -406,8 +426,39 @@ def teleportPlayer(oldpos, newpos):
         window.blit(image, coordinates)
         pygame.display.flip()
 
-def animateSelect():
-    pass
+def animateSelect(direction):
+    if direction == 1:
+        for i in range(20):
+            window.fill([0, 0, 0])
+            ui.setFontSize(64)
+            ui.centeredText("Level Select", [400, 5], [255, 255, 255], window)
+            back.draw(window)
+            if selectpage == 29:
+                index = -1
+            else:
+                index = selectpage
+            window.blit(levelimages[index], [250 - (28 * i), 150])
+            ui.centeredText(str(levelnames[index]), [400 - (28 * i), 460], [255, 255, 255], window)
+            window.blit(levelimages[index+1], [800 - (28 * i), 150])
+            ui.centeredText(str(levelnames[index+1]), [950 - (28 * i), 460], [255, 255, 255], window)
+            pygame.display.flip()
+    elif direction == -1:
+        for i in range(20):
+            window.fill([0, 0, 0])
+            ui.setFontSize(64)
+            ui.centeredText("Level Select", [400, 5], [255, 255, 255], window)
+            back.draw(window)
+            if selectpage == 0:
+                index = 0
+                index2 = 29
+            else:
+                index = selectpage
+                index2 = index - 1
+            window.blit(levelimages[index], [250 + (28 * i), 150])
+            ui.centeredText(str(levelnames[index]), [400 + (28 * i), 460], [255, 255, 255], window)
+            window.blit(levelimages[index2], [-300 + (28 * i), 150])
+            ui.centeredText(str(levelnames[index2]), [-150 + (28 * i), 460], [255, 255, 255], window)
+            pygame.display.flip()
 
 def move():
     global event, moves, sfx, returnparameters, player, map, Move, conveyerdata
@@ -523,15 +574,17 @@ while running:
                     if back.click(mouse):
                         screen = "menu"
                     if next.click(mouse):
-                        if selectpage < 25:
+                        animateSelect(1)
+                        if selectpage < 30:
                             selectpage += 1
-                        if selectpage == 25:
+                        if selectpage == 30:
                             selectpage = 0
                     if previous.click(mouse):
+                        animateSelect(-1)
                         if selectpage > 0:
                             selectpage -=1
                         elif selectpage <= 0:
-                            selectpage = 24
+                            selectpage = 29
                     if startlevel.click(mouse) and unlocked[selectpage]:
                         screen = "game"
                         level = selectpage
@@ -567,6 +620,11 @@ while running:
                         updateMusicButtons()
                         if not music:
                             channel.stop()
+                    if aboutbutton.click(mouse):
+                        screen = "about"
+                elif screen == "about":
+                    if back.click(mouse):
+                        screen = "settings"
                 elif screen == "pause":
                     if resumeb.click(mouse):
                         screen = "game"
@@ -616,12 +674,45 @@ while running:
                         if restart.click(mouse):
                             loadLevel()
         elif event.type == pygame.USEREVENT:
-            player.animate()
+            if screen == "game":
+                player.animate()
+            if screen == "menu":
+                if logoindex == 0:
+                    logoindex = 1
+                elif logoindex == 1:
+                    logoindex = 0
+                logo = logos[logoindex]
         elif event.type == pygame.USEREVENT+1:
-            update("animate")
+            if screen == "game":
+                update("animate")
 
     if screen == "menu":
         window.fill([0, 0, 0])
+
+        if menux == -200 and menuy == -400 and menusequence == 0:
+            menusequence = 1
+        elif menux == 0 and menuy == -400 and menusequence == 1:
+            menusequence = 2
+        elif menux == -200 and menuy == 0 and menusequence == 2:
+            menusequence = 3
+        elif menux == 0 and menuy == 0 and menusequence == 3:
+            menusequence = 0
+
+        if menusequence == 0:
+            menux -= 2
+            menuy -= 4
+        elif menusequence == 1:
+            menux += 2
+        elif menusequence == 2:
+            menux -= 2
+            menuy += 4
+        elif menusequence == 3:
+            menux += 2
+
+        window.blit(menuimage, [menux, menuy])
+        surf = pygame.surface.Surface([800, 250])
+        surf.set_alpha(200)
+        window.blit(surf, [0, 0])
         ui.setFontSize(64)
         window.blit(logo, [250, 0])
         playb.draw(window)
@@ -629,8 +720,104 @@ while running:
         settingsb.draw(window)
         quitb.draw(window)
         ui.setFontSize(16)
-        ui.text("Copyright (c) 2019 Orion Williams", [5, 580], [255, 255, 255],window)
+        ui.text("Copyright (c) 2019 Orion Williams", [1, 235], [255, 255, 255], window)
         if not channel.get_busy() and music:
+            setMusic("./music/sunshine.wav")
+    elif screen == "you win":
+        channel.stop()
+        if music:
+            hero = pygame.mixer.Sound("./music/Heroic-Intro.wav")
+            hero.play(2)
+        window.fill([0, 0, 0])
+        for i in range(21):
+            window.fill([0, 0, 0])
+            ui.setFontSize(48)
+            ui.centeredText("Congratulations!", [i * 20, 30], [255, 255, 255], window)
+            pygame.display.flip()
+        time.sleep(4)
+        for i in range(21):
+            window.fill([0, 0, 0])
+            ui.setFontSize(48)
+            ui.centeredText("Congratulations!", [400, 30], [255, 255, 255], window)
+            ui.setFontSize(36)
+            ui.centeredText("You finished the entire game!", [800 - (20 * i), 100], [255, 255, 255], window)
+            pygame.display.flip()
+        time.sleep(3)
+        for i in range(21):
+            window.fill([0, 0, 0])
+            ui.setFontSize(48)
+            ui.centeredText("Congratulations!", [400, 30], [255, 255, 255], window)
+            ui.setFontSize(36)
+            ui.centeredText("You finished the entire game!", [400, 100], [255, 255, 255], window)
+            ui.setFontSize(24)
+            ui.centeredText("You've proven youself to be an outstanding...", [20 * i, 170], [255, 255, 255], window)
+            pygame.display.flip()
+        time.sleep(3)
+        for i in range(21):
+            window.fill([0, 0, 0])
+            ui.setFontSize(48)
+            ui.centeredText("Congratulations!", [400, 30], [255, 255, 255], window)
+            ui.setFontSize(36)
+            ui.centeredText("You finished the entire game!", [400, 100], [255, 255, 255], window)
+            ui.setFontSize(24)
+            ui.centeredText("You've proven youself to be an outstanding...", [400, 170], [255, 255, 255], window)
+            ui.setFontSize(36)
+            ui.centeredText("Thinker", [800 - (20 * i), 220], [255, 255, 255], window)
+            pygame.display.flip()
+        time.sleep(2)
+        for i in range(21):
+            window.fill([0, 0, 0])
+            ui.setFontSize(48)
+            ui.centeredText("Congratulations!", [400, 30], [255, 255, 255], window)
+            ui.setFontSize(36)
+            ui.centeredText("You finished the entire game!", [400, 100], [255, 255, 255], window)
+            ui.setFontSize(24)
+            ui.centeredText("You've proven youself to be an outstanding...", [400, 170], [255, 255, 255], window)
+            ui.setFontSize(36)
+            ui.centeredText("Thinker", [400, 220], [255, 255, 255], window)
+            ui.centeredText("Problem Solver", [20 * i, 270], [255, 255, 255], window)
+            pygame.display.flip()
+        time.sleep(2)
+        for i in range(21):
+            window.fill([0, 0, 0])
+            ui.setFontSize(48)
+            ui.centeredText("Congratulations!", [400, 30], [255, 255, 255], window)
+            ui.setFontSize(36)
+            ui.centeredText("You finished the entire game!", [400, 100], [255, 255, 255], window)
+            ui.setFontSize(24)
+            ui.centeredText("You've proven youself to be an outstanding...", [400, 170], [255, 255, 255], window)
+            ui.setFontSize(36)
+            ui.centeredText("Thinker", [400, 220], [255, 255, 255], window)
+            ui.centeredText("Problem Solver", [400, 270], [255, 255, 255], window)
+            ui.setFontSize(24)
+            ui.centeredText("And Last but not least...", [800 - (20 * i), 320], [255, 255, 255], window)
+            pygame.display.flip()
+        time.sleep(2)
+        for i in range(21):
+            window.fill([0, 0, 0])
+            ui.setFontSize(48)
+            ui.centeredText("Congratulations!", [400, 30], [255, 255, 255], window)
+            ui.setFontSize(36)
+            ui.centeredText("You finished the entire game!", [400, 100], [255, 255, 255], window)
+            ui.setFontSize(24)
+            ui.centeredText("You've proven youself to be an outstanding...", [400, 170], [255, 255, 255], window)
+            ui.setFontSize(36)
+            ui.centeredText("Thinker", [400, 220], [255, 255, 255], window)
+            ui.centeredText("Problem Solver", [400, 270], [255, 255, 255], window)
+            ui.setFontSize(24)
+            ui.centeredText("And Last but not least...", [400, 320], [255, 255, 255], window)
+            ui.setFontSize(36)
+            ui.centeredText("A true Genius!", [800 - (20 * i), 400], [255, 255, 255], window)
+            pygame.display.flip()
+        time.sleep(4)
+        for i in range(21):
+            window.fill([0, 0, 0])
+            ui.setFontSize(48)
+            ui.centeredText("Thanks for Playing!", [20 * i, 276], [255, 255, 255], window)
+            pygame.display.flip()
+        time.sleep(4)
+        screen = "menu"
+        if music:
             setMusic("./music/sunshine.wav")
     elif screen == "select":
         window.fill([0, 0, 0])
@@ -640,12 +827,13 @@ while running:
         window.blit(levelimages[selectpage], [250, 150])
         ui.centeredText(str(levelnames[selectpage]), [400, 460], [255, 255, 255], window)
         if not unlocked[selectpage]:
-            window.blit(lock, [250, 90])
+            window.blit(lock, [250, 525])
             ui.setFontSize(13)
-            ui.text("This Level is not Unlocked Yet", [300, 120], [255, 255, 255], window)
+            ui.text("This Level is not Unlocked Yet", [300, 555], [255, 255, 255], window)
+        else:
+            startlevel.draw(window)
         next.draw(window)
         previous.draw(window)
-        startlevel.draw(window)
         if not channel.get_busy() and music:
             setMusic("./music/sunshine.wav")
     elif screen == "pause":
@@ -656,7 +844,7 @@ while running:
         player.draw(window)
         if level < 4:
             tutorial()
-        surf = pygame.surface.Surface([800, 220])
+        surf = pygame.surface.Surface([800, 250])
         surf.set_alpha(200)
         window.blit(surf, [0, 0])
         ui.setFontSize(64)
@@ -676,6 +864,7 @@ while running:
         fullscreenb.draw(window)
         musicb.draw(window)
         sfxb.draw(window)
+        aboutbutton.draw(window)
         ui.setFontSize(36)
         ui.text("Fullscreen is:", [5, 75], [255, 255, 255], window)
         if not channel.get_busy() and music:
@@ -696,18 +885,25 @@ while running:
             ui.text("On", [415, 255], [0, 255, 0], window)
         else:
             ui.text("Off", [415, 255], [255, 0, 0], window)
+    elif screen == "about":
+        window.fill([0, 0, 0])
+        window.blit(about, [0, 0])
+        back.draw(window)
     elif screen == "game":
-        drawScreen()
-        if not channel.get_busy():
-            setMusic(random.choice(loops))
-        if returnparameters.moveagain and music:
-            move()
-            if not returnparameters.moveto == None:
-                player.moveto(returnparameters.moveto)
-                returnparameters.reset()
-            if not returnparameters.update == None:
-                update(returnparameters.update)
-                returnparameters.reset()
+        if level == 30:
+            screen = "you win"
+        else:
+            drawScreen()
+            if not channel.get_busy():
+                setMusic(random.choice(loops))
+            if returnparameters.moveagain and music:
+                move()
+                if not returnparameters.moveto == None:
+                    player.moveto(returnparameters.moveto)
+                    returnparameters.reset()
+                if not returnparameters.update == None:
+                    update(returnparameters.update)
+                    returnparameters.reset()
     pygame.display.flip()
 unlockedfile = open("./data/unlocked.dat", "wb")
 pickle.dump(unlocked, unlockedfile)
@@ -716,4 +912,3 @@ options = open("./data/options.dat", "wb")
 pickle.dump([fullscreen, music, sfx], options)
 options.close()
 pygame.quit()
-
