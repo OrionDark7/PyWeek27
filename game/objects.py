@@ -7,8 +7,9 @@ images = {"key":[pygame.image.load("./images/tiles/key.png"), pygame.image.load(
                            pygame.image.load("./images/tiles/keys/key9.png"), pygame.image.load("./images/tiles/keys/key10.png"), pygame.image.load("./images/tiles/key.png"), pygame.image.load("./images/tiles/key.png"),
                             pygame.image.load("./images/tiles/key.png"), pygame.image.load("./images/tiles/key.png"), pygame.image.load("./images/tiles/key.png")],
         "portal":[pygame.image.load("./images/tiles/portal.png"), pygame.image.load("./images/tiles/portal2.png")],
-        "trap":[pygame.image.load("./images/tiles/trap.png"), pygame.image.load("./images/tiles/traps/trap2.png"), pygame.image.load("./images/tiles/traps/trap3.png"), pygame.image.load("./images/tiles/traps/trap4.png"),
-                pygame.image.load("./images/tiles/traps/trap5.png"), pygame.image.load("./images/tiles/traps/trap4.png"), pygame.image.load("./images/tiles/traps/trap3.png"), pygame.image.load("./images/tiles/traps/trap2.png")]}
+        "trap":[pygame.image.load("./images/tiles/trap.png"), pygame.image.load("./images/tiles/traps/trap2.png"), pygame.image.load("./images/tiles/traps/trap3.png"), pygame.image.load("./images/tiles/traps/trap4.png")]}
+
+terrain = None
 
 class player(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -70,6 +71,8 @@ class tile(pygame.sprite.Sprite):
             if self.data[1] == "wall" and self.pos == list(pos):
                 allclear.wallappear = self.data[0]
                 allclear.sound = "wall"
+        if action == "remove-floor" and self.pos == allclear.floor and self.type == "tile":
+            self.kill()
         if action == "animate" and self.type in images.keys():
             if self.index < len(self.images)-1:
                 self.index += 1
@@ -96,7 +99,6 @@ class tile(pygame.sprite.Sprite):
                 if self.data[1] == "wall":
                     allclear.wallappear = self.data[0]
                     allclear.sound = "wall"
-                    print allclear.sound
                 if self.type == "tile":
                     allclear.moveagain = False
                 elif self.type == "wall" or self.type == "door":
@@ -107,11 +109,9 @@ class tile(pygame.sprite.Sprite):
                     allclear.moveto = self.data[0]
                     allclear.moveagain = False
                     allclear.sound = "portal"
-                    print allclear.sound
                 elif self.type == "gem":
                     allclear.allclear = True
                     allclear.sound = "gem"
-                    print allclear.sound
                     self.kill()
                 elif self.type == "key":
                     allclear.allclear = True
@@ -119,13 +119,11 @@ class tile(pygame.sprite.Sprite):
                     allclear.door = self.data[0]
                     allclear.moveagain = False
                     allclear.sound = "key"
-                    print allclear.sound
                     self.kill()
                 elif self.type == "exit":
                     allclear.moveagain = False
                     allclear.won = True
                     allclear.sound = "win"
-                    print allclear.sound
                 elif self.type.startswith("conveyer"):
                     allclear.allclear = True
                     conveyertype = self.type.split("conveyer-")[1]
@@ -146,7 +144,8 @@ class tile(pygame.sprite.Sprite):
                     allclear.trap = True
                     allclear.moveagain = False
                     allclear.sound = "trap"
-                    print allclear.sound
+                    allclear.floor = self.pos
+                    allclear.update = "remove-floor"
                 elif self.type == "crumble":
                     allclear.allclear = True
                     self.crumble = True

@@ -1,4 +1,4 @@
-import pygame, pytmx, time, math, random
+import pygame, pytmx, time, math, random, pickle
 from game import *
 
 # Six Moves - A PyWeek #27 Entry
@@ -8,15 +8,42 @@ pygame.init()
 pygame.mixer.init()
 window = pygame.display.set_mode([800, 600])
 pygame.display.set_caption("Six Moves")
+channel = pygame.mixer.Channel(0)
 window.fill([0, 0, 0])
 running = True
 player = objects.player([250, 150])
 screen = "menu"
 level = 0
 conveyerdata = []
+terrain = None
 starts = [[0, 0], [4, 0], [2,0], [0, 0], [0, 0], [2, 2], [0, 0], [4, 0], [0, 0], [0, 0], [2, 2], [2, 2], [1, 0], [0, 0], [0, 0], [1, 2], [4, 0], [0, 0], [2, 0], [0, 2], [0, 0], [0, 0], [0, 2], [0, 0], [2, 0]]
 pygame.time.set_timer(pygame.USEREVENT, 500) #Update Animations every 0.5 seconds
 pygame.time.set_timer(pygame.USEREVENT+1, 75)
+fullscreen = False
+music = True
+sfx = True
+load = True
+options = open("./data/options.dat", "rb")
+try:
+    optionvalues = pickle.load(options)
+except:
+    load = False
+if load:
+    fullscreen = optionvalues[0]
+    music = optionvalues[1]
+    sfx = optionvalues[2]
+options.close()
+if fullscreen:
+    window = pygame.display.set_mode([800, 600], pygame.FULLSCREEN)
+unlocked = [True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]
+unlockedfile = open("./data/unlocked.dat", "rb")
+try:
+    unlocked = pickle.load(unlockedfile)
+except:
+    pass
+unlockedfile.close()
+lock = pygame.image.load("./images/lock.png")
+logo = pygame.image.load("./images/six-moves.png")
 playerimages = [pygame.image.load("./images/player/goo.png"), pygame.image.load("./images/player/dot.png"), pygame.image.load("./images/player/x5.png"), pygame.image.load("./images/player/x4.png"), pygame.image.load("./images/player/x3.png"),
                 pygame.image.load("./images/player/x2.png"), pygame.image.load("./images/player/x.png")]
 levelimages = [pygame.image.load("./images/levels/tutorial1.png"), pygame.image.load("./images/levels/tutorial2.png"), pygame.image.load("./images/levels/tutorial3.png"), pygame.image.load("./images/levels/level1.png"),
@@ -28,7 +55,6 @@ levelimages = [pygame.image.load("./images/levels/tutorial1.png"), pygame.image.
                pygame.image.load("./images/levels/trap3.png")]
 levelnames = ["Tutorial 1", "Tutorial 2", "Tutorial 3", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9", "Level 10", "Level 11", "Level 12", "Level 13", "Level 14", "Level 15", "Level 16", "Level 17", "Level 18", "Level 19", "Level 20", "Level 21", "Level 22"]
 sequence = ["tutorial1", "tutorial2", "tutorial3", "level1", "level2", "level3", "level4", "level5", "conveyer1", "conveyer2", "conveyer3", "conveyer4", "conveyer5", "portal1", "portal2", "portal3", "key1", "key2", "key3", "crumble1", "crumble2", "crumble3", "trap1", "trap2", "trap3"]
-
 howtoplayimages = [pygame.image.load("./images/howtoplay/goal.png"), pygame.image.load("./images/howtoplay/controls.png"), pygame.image.load("./images/howtoplay/objects.png"), pygame.image.load("./images/howtoplay/move.png")]
 levels = {"level1":"level1", "level2":"level2", "tutorial1":"noprefs", "tutorial2":"noprefs", "tutorial3":"tutorial3", "level3":"level3", "level4":"level4", "level5":"level5",
           "conveyer1":"conveyer1", "conveyer2":"conveyer2", "conveyer3":"conveyer3", "conveyer4":"conveyer4", "conveyer5":"conveyer5",
@@ -40,13 +66,11 @@ Move = pygame.mixer.Sound("./sfx/Move.wav")
 loops = ["./music/stroll.wav", "./music/fate.wav", "./music/thinking.wav"]
 Move.set_volume(0.5)
 mouse = [0, 0]
-fullscreen = False
-music = True
-sfx = True
 sounds = {"key": pygame.mixer.Sound("./sfx/Key.wav"), "portal": pygame.mixer.Sound("./sfx/Portal.wav"), "trap": pygame.mixer.Sound("./sfx/Trap.wav"), "win": pygame.mixer.Sound("./sfx/You Win.wav"), "wall":pygame.mixer.Sound("./sfx/Wall.wav"), "gem":pygame.mixer.Sound("./sfx/Gem.wav"), "splat":pygame.mixer.Sound("./sfx/Splat.wav")}
 prev = "menu"
 selectpage = 0
 page = 0
+trap = None
 
 ui.setFontSize(36)
 playb = ui.button("Play Game", [400, 75], [255, 255, 255], centered=True)
@@ -64,8 +88,15 @@ controlsbutton = ui.button("Controls", [5, 160], [255, 255, 255])
 objectsbutton = ui.button("Objects and Obstacles", [5, 195], [255, 255, 255])
 gamemechbutton = ui.button("Movement", [5, 230], [255, 255, 255])
 
-audio = ui.imagebutton("./images/buttons/audio.png", [730, 5], [60, 60])
-musict = ui.imagebutton("./images/buttons/music.png", [665, 5], [60, 60])
+if sfx:
+    audio = ui.imagebutton("./images/buttons/audio.png", [730, 5], [60, 60])
+else:
+    audio = ui.imagebutton("./images/buttons/audio-off.png", [730, 5], [60, 60])
+
+if music:
+    musict = ui.imagebutton("./images/buttons/music.png", [665, 5], [60, 60])
+else:
+    musict = ui.imagebutton("./images/buttons/music-off.png", [665, 5], [60, 60])
 
 ui.setFontSize(24)
 restart = ui.button("Restart", [5, 30], [0, 200, 255])
@@ -110,6 +141,7 @@ class ReturnParameters(pygame.sprite.Sprite): #For use when updating sprite grou
         self.destroywall = None
         self.destroywallat = -1, -1
         self.conveyerdata = []
+        self.floor = -1, -1
     def reset(self):
         self.allclear = True
         self.moveto = None
@@ -127,6 +159,7 @@ class ReturnParameters(pygame.sprite.Sprite): #For use when updating sprite grou
         self.destroywall = None
         self.destroywallat = -1, -1
         self.conveyerdata = []
+        self.floor = -1, -1
 
 returnparameters = ReturnParameters()
 
@@ -217,7 +250,7 @@ def insideMap(position):
     return inside
 
 def drawScreen():
-    global floor, moves, window, traps, player, returnparameters, map, level
+    global floor, moves, window, traps, player, returnparameters, map, level, trap, surface
     ui.setFontSize(48)
     window.fill([0, 0, 0])
     traps.draw(window)
@@ -234,6 +267,7 @@ def drawScreen():
     ui.text(levelnames[level], [5, 5], [255, 255, 255], window)
     restart.draw(window)
     update("get", grp=map)
+    print returnparameters.trap
     if level < 4:
         tutorial()
     if returnparameters.won:
@@ -245,19 +279,21 @@ def drawScreen():
         if level >= len(sequence):
             level = 0
         loadLevel()
-        screen = "you win"
+        unlocked[level] = True
     if moves == 0:
         ui.centeredText("Out of Moves!", [400, 55], [255, 255, 255], window)
         pygame.display.flip()
         time.sleep(2)
         loadLevel()
-    if returnparameters.trap:
+    if trap:
         ui.setFontSize(36)
         ui.centeredText("You fell into a Trap!", [400, 55], [255, 255, 255], window)
         pygame.display.flip()
         time.sleep(2)
         loadLevel()
-    if not insideMap(player.pos) or returnparameters.type == "wall":
+        returnparameters.reset()
+        trap = False
+    if not insideMap(player.pos) or returnparameters.type == "wall" or returnparameters.type == "door":
         sounds["splat"].play()
         animateDeath()
         ui.setFontSize(36)
@@ -265,15 +301,16 @@ def drawScreen():
         pygame.display.flip()
         time.sleep(2)
         loadLevel()
+        returnparameters.reset()
     pygame.display.flip()
     returnparameters.mouse = mouse
 
 def setMusic(file):
-    global music
+    global music, channel
     if music:
-        pygame.mixer_music.stop()
-        pygame.mixer_music.load(str(file))
-        pygame.mixer_music.play(50)
+        channel.stop()
+        sound = pygame.mixer.Sound(str(file))
+        channel.play(sound, loops=50)
 
 def updateAudioButtons():
     global sfx, audio
@@ -297,7 +334,7 @@ def toggleFullscreen():
         window = pygame.display.set_mode([800, 600])
 
 def animateDeath():
-    global map, floor, traps, player, playerimages, level, levelnames
+    global map, floor, traps, player, playerimages, level, levelnames, surface
     for i in range(len(playerimages)):
         window.fill([0, 0, 0])
         traps.draw(window)
@@ -317,7 +354,7 @@ def animateDeath():
     player.image = pygame.image.load("./images/player/goo.png")
 
 def animatePlayer(oldpos, newpos):
-    global window, map, floor, traps, player, level, levelnames
+    global window, map, floor, traps, player, level, levelnames, surface
     for i in range(20):
         window.fill([0, 0, 0])
         traps.draw(window)
@@ -368,6 +405,9 @@ def teleportPlayer(oldpos, newpos):
         image = pygame.transform.scale(player.image, [(2*i), (2*i)])
         window.blit(image, coordinates)
         pygame.display.flip()
+
+def animateSelect():
+    pass
 
 def move():
     global event, moves, sfx, returnparameters, player, map, Move, conveyerdata
@@ -449,7 +489,7 @@ while running:
             if screen == "game":
                 if event.key == pygame.K_ESCAPE:
                     screen = "pause"
-                    pygame.mixer_music.pause()
+                    channel.pause()
                 if event.key == pygame.K_r:
                     player.reset(start=starts[level])
                     resetGroups()
@@ -460,7 +500,7 @@ while running:
             elif screen == "pause":
                 if event.key == pygame.K_ESCAPE:
                     screen = "game"
-                    pygame.mixer_music.unpause()
+                    channel.unpause()
         elif event.type == pygame.MOUSEMOTION:
             mouse = event.pos[0], event.pos[1]
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -477,7 +517,7 @@ while running:
                         screen = "settings"
                         prev = "menu"
                     elif quitb.click(mouse):
-                        pygame.mixer_music.stop()
+                        channel.stop()
                         running = False
                 elif screen == "select":
                     if back.click(mouse):
@@ -492,7 +532,7 @@ while running:
                             selectpage -=1
                         elif selectpage <= 0:
                             selectpage = 24
-                    if startlevel.click(mouse):
+                    if startlevel.click(mouse) and unlocked[selectpage]:
                         screen = "game"
                         level = selectpage
                         loadLevel()
@@ -526,11 +566,11 @@ while running:
                         music = not music
                         updateMusicButtons()
                         if not music:
-                            pygame.mixer_music.stop()
+                            channel.stop()
                 elif screen == "pause":
                     if resumeb.click(mouse):
                         screen = "game"
-                        pygame.mixer_music.unpause()
+                        channel.unpause()
                     elif howtoplayb.click(mouse):
                         screen = "how to play"
                         prev = "pause"
@@ -545,6 +585,7 @@ while running:
                         returnparameters.mouse = mouse
                         update("whereis")
                         move()
+                        trap = returnparameters.trap
                         if not returnparameters.moveto == None:
                             oldpos = player.pos
                             player.moveto(returnparameters.moveto)
@@ -559,7 +600,6 @@ while running:
                                 returnparameters.reset()
                             elif returnparameters.update == "destroywall":
                                 positions = returnparameters.destroywall
-
                             else:
                                 update(returnparameters.update)
                                 returnparameters.reset()
@@ -572,7 +612,7 @@ while running:
                             music = not music
                             updateMusicButtons()
                             if not music:
-                                pygame.mixer_music.stop()
+                                channel.stop()
                         if restart.click(mouse):
                             loadLevel()
         elif event.type == pygame.USEREVENT:
@@ -583,13 +623,15 @@ while running:
     if screen == "menu":
         window.fill([0, 0, 0])
         ui.setFontSize(64)
-        ui.centeredText("Six Moves", [400, 5], [255, 255, 255], window)
+        window.blit(logo, [250, 0])
         playb.draw(window)
         howtoplayb.draw(window)
         settingsb.draw(window)
         quitb.draw(window)
         ui.setFontSize(16)
         ui.text("Copyright (c) 2019 Orion Williams", [5, 580], [255, 255, 255],window)
+        if not channel.get_busy() and music:
+            setMusic("./music/sunshine.wav")
     elif screen == "select":
         window.fill([0, 0, 0])
         ui.setFontSize(64)
@@ -597,9 +639,15 @@ while running:
         back.draw(window)
         window.blit(levelimages[selectpage], [250, 150])
         ui.centeredText(str(levelnames[selectpage]), [400, 460], [255, 255, 255], window)
+        if not unlocked[selectpage]:
+            window.blit(lock, [250, 90])
+            ui.setFontSize(13)
+            ui.text("This Level is not Unlocked Yet", [300, 120], [255, 255, 255], window)
         next.draw(window)
         previous.draw(window)
         startlevel.draw(window)
+        if not channel.get_busy() and music:
+            setMusic("./music/sunshine.wav")
     elif screen == "pause":
         window.fill([0, 0, 0])
         traps.draw(window)
@@ -630,6 +678,8 @@ while running:
         sfxb.draw(window)
         ui.setFontSize(36)
         ui.text("Fullscreen is:", [5, 75], [255, 255, 255], window)
+        if not channel.get_busy() and music:
+            setMusic("./music/sunshine.wav")
         if fullscreen:
             ui.text("On", [315, 75], [0, 255, 0], window)
         else:
@@ -648,7 +698,9 @@ while running:
             ui.text("Off", [415, 255], [255, 0, 0], window)
     elif screen == "game":
         drawScreen()
-        if returnparameters.moveagain:
+        if not channel.get_busy():
+            setMusic(random.choice(loops))
+        if returnparameters.moveagain and music:
             move()
             if not returnparameters.moveto == None:
                 player.moveto(returnparameters.moveto)
@@ -657,4 +709,11 @@ while running:
                 update(returnparameters.update)
                 returnparameters.reset()
     pygame.display.flip()
+unlockedfile = open("./data/unlocked.dat", "wb")
+pickle.dump(unlocked, unlockedfile)
+unlockedfile.close()
+options = open("./data/options.dat", "wb")
+pickle.dump([fullscreen, music, sfx], options)
+options.close()
 pygame.quit()
+
